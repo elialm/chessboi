@@ -7,5 +7,6 @@ mvn clean javafx:run
 # Building
 
 ```
-mvn package javafx:run
+mvn install
+java -jar target/chessboi-1.0.0-shaded.jar
 ```
