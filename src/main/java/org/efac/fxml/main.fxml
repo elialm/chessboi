@@ -6,31 +6,19 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.control.Label?>
 
-<GridPane>
-    <children>
-        <VBox id="controls">
-            <children>
-                <Label text="Hello World" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            </children>
+<BorderPane>
+    <left>
+        <VBox id="controls" prefWidth="300">
+            
         </VBox>
-    
-        <BorderPane id="chessboard-container" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <children>
-                <GridPane id="chessboard" gridLinesVisible="true">
-                    <Label text="1" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <Label text="2" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Label text="3" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <Label text="4" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+    </left>
+    <center>
+        <BorderPane id="chessboard-container" prefWidth="600">
+            <center>
+                <GridPane id="chessboard" maxWidth="550" maxHeight="550">
+
                 </GridPane>
-            </children>
+            </center>
         </BorderPane>
-        
-    </children>
-    <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="300.0" />
-        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="600.0" />
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    </rowConstraints>
-</GridPane>
+    </center>
+</BorderPane>

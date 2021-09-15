@@ -3,7 +3,7 @@ package org.efac;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
@@ -22,9 +22,9 @@ public class App extends Application {
         var loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("fxml/main.fxml"));
 
-        GridPane pane = null;
+        BorderPane pane = null;
         try {
-            pane = loader.<GridPane>load();
+            pane = loader.<BorderPane>load();
         } 
         catch (Exception ex) {
             System.out.println(ex);
