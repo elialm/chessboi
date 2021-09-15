@@ -3,7 +3,7 @@ package org.efac;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
@@ -21,24 +21,25 @@ public class App extends Application {
 
         var loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("fxml/main.fxml"));
-        var vbox = loader.<VBox>load();
-        // vbox.setId("label1");
 
-        var label = new Label("Other label");
-        label.setStyle("-fx-background-color: rgb(84, 82, 151);");
-        vbox.getChildren().add(label);
+        GridPane pane = null;
+        try {
+            pane = loader.<GridPane>load();
+        } 
+        catch (Exception ex) {
+            System.out.println(ex);
+            throw ex;
+        }
 
-        var scene = new Scene(vbox, 600, 400);
+        var scene = new Scene(pane, 900, 600);
         scene.getStylesheets().add(getClass().getResource("css/style.css").toExternalForm());
 
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
-
-        // System.out.println(getClass().getResource("resources/pedobear.png"));
     }
 
     public static void main(String[] args) {
-
         launch();
     }
 
