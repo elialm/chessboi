@@ -29,7 +29,7 @@ public class App extends Application {
         vbox.getChildren().add(label);
 
         var scene = new Scene(vbox, 600, 400);
-        scene.getStylesheets().add("css/style.css");
+        scene.getStylesheets().add(getClass().getResource("css/style.css").toExternalForm());
 
         stage.setScene(scene);
         stage.show();

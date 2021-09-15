@@ -2,7 +2,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
 
-<VBox stylesheets="file:///D:/OneDrive%20-%20Office%20365%20Fontys/Minor/Personal%20Tuition%20Project/Tests/VSCodeTest/chessboi/src/main/java/org/efac/css/style.css">
+<VBox>
     <children>
         <Label id="label1" text="Hello world FXML"/>
     </children>
