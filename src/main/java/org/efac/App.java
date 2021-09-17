@@ -4,10 +4,8 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+// import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.scene.control.Label;
-
-import java.net.URL;
 
 /**
  * JavaFX App
@@ -33,6 +31,8 @@ public class App extends Application {
 
         var scene = new Scene(pane, 900, 600);
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+
+        //GridPane chessboard = (GridPane)scene.lookup("#chessboard");
 
         stage.setScene(scene);
         stage.setResizable(false);
