@@ -18,6 +18,14 @@ public class Chessboard {
     }
 
     public Chessboard(int xSize, int ySize) {
+        if (xSize < 0) {
+            throw new InvalidParameterException("xSize must be positive");
+        }
+
+        if (ySize < 0) {
+            throw new InvalidParameterException("ySize must be positive");
+        }
+
         this.xSize = xSize;
         this.ySize = ySize;
 
