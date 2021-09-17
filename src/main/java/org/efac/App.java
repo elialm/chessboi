@@ -20,7 +20,7 @@ public class App extends Application {
         // var javafxVersion = SystemInfo.javafxVersion();
 
         var loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("fxml/main.fxml"));
+        loader.setLocation(getClass().getResource("/fxml/main.fxml"));
 
         BorderPane pane = null;
         try {
@@ -32,7 +32,7 @@ public class App extends Application {
         }
 
         var scene = new Scene(pane, 900, 600);
-        scene.getStylesheets().add(getClass().getResource("css/style.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
         stage.setScene(scene);
         stage.setResizable(false);
