@@ -8,10 +8,13 @@ public class BoardLocation {
     int xLocation;
     int yLocation;
     Chessboard chessboard;
+    ChessPiece chessPiece;
     
     public int getXLocation() { return xLocation; }
     public int getYLocation() { return yLocation; }
     public Chessboard getChessboard() { return chessboard; }
+    public ChessPiece getPiece() { return chessPiece; }
+    public void setPiece(ChessPiece piece) { chessPiece = piece; }
 
     public BoardLocation(int xLocation, int yLocation, Chessboard chessboard) {
         if (chessboard == null) {
@@ -37,17 +40,23 @@ public class BoardLocation {
         this.xLocation = xLocation;
         this.yLocation = yLocation;
         this.chessboard = chessboard;
-    }
-
-    public ChessPiece getPiece() {
-        return chessboard.getPiece(xLocation, yLocation);
-    }
-
-    public void setPiece(ChessPiece piece) {
-        chessboard.setPiece(xLocation, yLocation, piece);
+        chessPiece = null;
     }
 
     public BoardLocation getRelativeLocation(int xRelative, int yRelative) {
-        return chessboard.createLocation(xLocation + xRelative, yLocation + yRelative);
+        return chessboard.getLocation(xLocation + xRelative, yLocation + yRelative);
+    }
+
+    public BoardLocation getRelativeLocationSafe(int xRelative, int yRelative) {
+        try {
+            return chessboard.getLocation(xLocation + xRelative, yLocation + yRelative);
+        } 
+        catch (InvalidParameterException exception) {
+            return null;
+        }
+    }
+
+    public BoardLocation[] getPossibleMoves() {
+        return chessPiece != null ? chessPiece.getPossibleMoves(this) : new BoardLocation[0];
     }
 }

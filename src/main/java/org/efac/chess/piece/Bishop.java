@@ -1,20 +1,27 @@
 package org.efac.chess.piece;
 
 import org.efac.chess.ChessPiece;
+
+import java.util.ArrayList;
+
 import org.efac.chess.BoardLocation;
 import org.efac.chess.Chessboard;
 
 public class Bishop extends ChessPiece {
-    public Bishop(BoardLocation location, Chessboard board) {
-        super(location, board);
-    }
+    /**
+     *      p  -  -  -  p
+     *      -  p  -  p  -
+     *      -  -  X  -  - 
+     *      -  p  -  p  -
+     *      p  -  -  -  p
+     */
+    public BoardLocation[] getPossibleMoves(BoardLocation location) {
+        ArrayList<BoardLocation> possibleMoves = new ArrayList<BoardLocation>();
 
-    public Bishop(int xLocation, int yLocation, Chessboard board) {
-        super(xLocation, yLocation, board);
-    }
+        for (BoardLocation nextLocation = location.getRelativeLocation(1, 1); nextLocation != null; nextLocation = nextLocation.getRelativeLocation(1, 1)) {
+            System.out.println(nextLocation);
+        }
 
-    public BoardLocation[] getPossibleMoves() {
-        // TODO: implement
         return null;
     }
 }

@@ -7,15 +7,10 @@ import java.security.InvalidParameterException;
 public class Chessboard {
     int xSize;
     int ySize;
-    ChessPiece[][] boardPieces;
+    BoardLocation[][] boardLocations;
 
-    public int getXSize() {
-        return xSize;
-    }
-
-    public int getYSize() {
-        return ySize;
-    }
+    public int getXSize() { return xSize; }
+    public int getYSize() { return ySize; }
 
     public Chessboard(int xSize, int ySize) {
         if (xSize < 0) {
@@ -29,25 +24,31 @@ public class Chessboard {
         this.xSize = xSize;
         this.ySize = ySize;
 
-        boardPieces = new ChessPiece[xSize][ySize];
+        boardLocations = new BoardLocation[xSize][ySize];
+        for (int column = 0; column < xSize; column++) {
+            for (int row = 0; row < ySize; row++) {
+                boardLocations[column][row] = new BoardLocation(column, row, this);
+            }
+        }
     }
 
-    public BoardLocation createLocation(int xLocation, int yLocation) {
-        return new BoardLocation(xLocation, yLocation, this);
+    public BoardLocation getLocation(int xLocation, int yLocation) {
+        checkIfInBounds(xLocation, yLocation);
+        return boardLocations[xLocation][yLocation];
     }
 
     public boolean isLocationFree(int xLocation, int yLocation) {
-        return getPiece(xLocation, yLocation) == null;
+        return getLocation(xLocation, yLocation).getPiece() == null;
     }
 
     public ChessPiece getPiece(int xLocation, int yLocation) {
         checkIfInBounds(xLocation, yLocation);
-        return boardPieces[xLocation][yLocation];
+        return boardLocations[xLocation][yLocation].getPiece();
     }
 
     public void setPiece(int xLocation, int yLocation, ChessPiece piece) {
         checkIfInBounds(xLocation, yLocation);
-        boardPieces[xLocation][yLocation] = piece;
+        boardLocations[xLocation][yLocation].setPiece(piece);
     }
 
     public void checkIfInBounds(BoardLocation location) {
