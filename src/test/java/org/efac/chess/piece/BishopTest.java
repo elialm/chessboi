@@ -3,7 +3,6 @@ package org.efac.chess.piece;
 import org.efac.chess.Chessboard;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.BoardLocation;
-import org.efac.chess.piece.Bishop;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
