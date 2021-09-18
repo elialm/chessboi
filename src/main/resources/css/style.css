@@ -24,13 +24,9 @@
  */
 
 #controls {
-    -fx-background-color: rgb(84, 82, 151);
+    -fx-background-color: #252526;
 }
 
 #chessboard-container {
-    -fx-background-color: rgb(119, 118, 156);
-}
-
-#chessboard {
-    -fx-background-color: rgb(123, 168, 93);
+    -fx-background-color: #1e1e1e;
 }
