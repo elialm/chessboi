@@ -5,14 +5,21 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 
 import java.util.regex.Pattern;
+
+import org.efac.chess.Chessboard;
+import org.efac.chess.ChessPiece.Color;
+import org.efac.chess.piece.Bishop;
+
 import java.util.regex.Matcher;
 
 public class ChessboardController {
     
     private Pattern numberFormatExceptionPattern;
+    private Chessboard chessboard;
 
     @FXML
     private TextField chessboardWidth;
@@ -25,6 +32,7 @@ public class ChessboardController {
 
     public ChessboardController() {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
+        chessboard = null;
     }
 
     @FXML
@@ -45,8 +53,14 @@ public class ChessboardController {
             handleNegativeIntegerInput();
             return;
         }
-        
-        System.out.println("pressed!");
+
+        chessboard = new Chessboard(chessboardWidth, chessboardHeight);
+        chessboard.getLocation(chessboardWidth / 2, chessboardHeight / 2).setPiece(new Bishop(Color.WHITE));
+
+        ChessboardBuilder.setupChessboard(chessboard, chessboardPane);
+        ChessboardBuilder.updateChessboard(chessboard, chessboardPane);
+
+        ((Button)event.getSource()).setText("Update dimensions");
     }
 
     private void handleInvalidIntegerInput(NumberFormatException ex) {

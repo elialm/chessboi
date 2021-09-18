@@ -67,11 +67,6 @@ public class App extends Application {
         var scene = new Scene(pane, 900, 600);
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
-        Chessboard chessboard = new Chessboard(8, 8);
-        chessboard.getLocation(3, 4).setPiece(new Bishop(Color.WHITE));
-        ChessboardBuilder.setupChessboard(chessboard, scene);
-        ChessboardBuilder.updateChessboard(chessboard, scene);
-
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
