@@ -29,16 +29,12 @@
 
 <BorderPane>
     <left>
-        <VBox id="controls" prefWidth="300">
-            
-        </VBox>
+        <VBox id="controls" prefWidth="300"/>
     </left>
     <center>
         <BorderPane id="chessboard-container" prefWidth="600">
             <center>
-                <GridPane id="chessboard" maxWidth="550" maxHeight="550" gridLinesVisible="true">
-
-                </GridPane>
+                <GridPane id="chessboard" maxWidth="550" maxHeight="550" minWidth="550" minHeight="550" prefWidth="550" prefHeight="550"/>
             </center>
         </BorderPane>
     </center>
