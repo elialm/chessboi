@@ -1,4 +1,4 @@
-package org.efac;
+package org.efac.ui;
 
 /**
  *  MIT License

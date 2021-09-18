@@ -33,6 +33,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import org.efac.ui.ChessboardBuilder;
+
 import org.efac.chess.Chessboard;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;

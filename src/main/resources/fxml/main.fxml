@@ -32,19 +32,19 @@
     SOFTWARE.
 -->
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.efac.ChessboardController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.efac.ui.ChessboardController">
     <left>
         <VBox id="controls" prefWidth="300">
             <Label text="Chessboard size"/>
             <BorderPane id="controls-chessboard-size-text">
                 <left>
-                    <TextField text="8" prefWidth="100"/>
+                    <TextField fx:id="chessboardWidth" text="8" prefWidth="100"/>
                 </left>
                 <center>
                     <Label text="X"/>
                 </center>
                 <right>
-                    <TextField text="8" prefWidth="100"/>
+                    <TextField fx:id="chessboardHeight" text="8" prefWidth="100"/>
                 </right>
             </BorderPane>
             <AnchorPane id="controls-chessboard-size-button">
