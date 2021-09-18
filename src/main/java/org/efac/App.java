@@ -28,9 +28,16 @@ package org.efac;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-// import javafx.scene.layout.GridPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.scene.control.Button;
+import java.io.FileInputStream;
+
+import org.efac.chess.Chessboard;
 
 /**
  * JavaFX App
@@ -41,6 +48,8 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
         // var javaVersion = SystemInfo.javaVersion();
         // var javafxVersion = SystemInfo.javafxVersion();
+
+        stage.setTitle("chessboi");
 
         var loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/fxml/main.fxml"));
@@ -57,7 +66,16 @@ public class App extends Application {
         var scene = new Scene(pane, 900, 600);
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
-        //GridPane chessboard = (GridPane)scene.lookup("#chessboard");
+        Chessboard chessboard = new Chessboard(8, 8);
+        setupChessboard(scene, chessboard);
+
+        GridPane chessboardPane = (GridPane)scene.lookup("#chessboard");
+        chessboardPane.add(new Button(), 0, 0);
+        chessboardPane.add(new Button(), 7, 7);
+        
+        BorderPane block = new BorderPane();
+        block.setStyle("-fx-background-color: rgb(84, 82, 151);");
+        chessboardPane.add(block, 4, 4);
 
         stage.setScene(scene);
         stage.setResizable(false);
@@ -68,4 +86,27 @@ public class App extends Application {
         launch();
     }
 
+    private void setupChessboard(Scene scene, Chessboard chessboard) {
+        GridPane chessboardPane = (GridPane)scene.lookup("#chessboard");
+
+        chessboardPane.getColumnConstraints().clear();
+        chessboardPane.getRowConstraints().clear();
+
+        double widthPercentage = 100.0 / ((double)chessboard.getXSize());
+        double heightPercentage = 100.0 / ((double)chessboard.getYSize());
+
+        for (int i = 0; i < chessboard.getXSize(); i++) {
+            ColumnConstraints column = new ColumnConstraints();
+            column.setPercentWidth(widthPercentage);
+
+            chessboardPane.getColumnConstraints().add(column);
+        }
+
+        for (int i = 0; i < chessboard.getYSize(); i++) {
+            RowConstraints row = new RowConstraints();
+            row.setPercentHeight(heightPercentage);
+            
+            chessboardPane.getRowConstraints().add(row);
+        }
+    }
 }
