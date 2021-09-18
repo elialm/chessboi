@@ -39,7 +39,7 @@ import javafx.scene.layout.GridPane;
 
 public class ChessboardBuilder {
     public static void setupChessboard(Chessboard chessboard, Scene scene) {
-        setupChessboard(chessboard, (GridPane)scene.lookup("#chessboard"));
+        setupChessboard(chessboard, (GridPane)scene.lookup("#chessboardPane"));
     }
 
     public static void setupChessboard(Chessboard chessboard, GridPane chessboardPane) {
@@ -86,7 +86,7 @@ public class ChessboardBuilder {
     }
 
     public static void updateChessboard(Chessboard chessboard, Scene scene) {
-        updateChessboard(chessboard, (GridPane)scene.lookup("#chessboard"));
+        updateChessboard(chessboard, (GridPane)scene.lookup("#chessboardPane"));
     }
 
     public static void updateChessboard(Chessboard chessboard, GridPane chessboardPane) {

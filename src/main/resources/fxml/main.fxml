@@ -48,14 +48,14 @@
                 </right>
             </BorderPane>
             <AnchorPane id="controls-chessboard-size-button">
-                <Button text="Update size" onAction="#pressed" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                <Button text="Update size" onAction="#setupChessboard" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
         </VBox>
     </left>
     <center>
         <BorderPane id="chessboard-container" prefWidth="600">
             <center>
-                <GridPane id="chessboard" maxWidth="550" maxHeight="550" minWidth="550" minHeight="550" prefWidth="550" prefHeight="550"/>
+                <GridPane fx:id="chessboardPane" maxWidth="550" maxHeight="550" minWidth="550" minHeight="550" prefWidth="550" prefHeight="550"/>
             </center>
         </BorderPane>
     </center>
