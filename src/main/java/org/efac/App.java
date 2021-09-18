@@ -48,6 +48,9 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        stage.setTitle("chessboi");
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/img/white_queen.png")));
+
         var loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/fxml/main.fxml"));
 
