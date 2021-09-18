@@ -26,6 +26,7 @@ package org.efac;
  */
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -43,6 +44,8 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        Platform.runLater(() -> stage.getScene().getRoot().requestFocus());
+
         stage.setTitle("chessboi");
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/img/white_queen.png")));
 
@@ -52,6 +55,7 @@ public class App extends Application {
         BorderPane pane = null;
         try {
             pane = loader.<BorderPane>load();
+            pane.requestFocus();
         } 
         catch (Exception ex) {
             System.out.println(ex);
