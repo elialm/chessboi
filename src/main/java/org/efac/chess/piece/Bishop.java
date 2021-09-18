@@ -39,6 +39,10 @@ public class Bishop extends ChessPiece {
         new Point( 1,  1)
     };
 
+    public Bishop(Color color) {
+        super(Type.BISHOP, color);
+    }
+
     /**
      *      p  -  -  -  p
      *      -  p  -  p  -

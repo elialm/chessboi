@@ -28,18 +28,20 @@ package org.efac;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.Border;
+import javafx.scene.chart.XYChart;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
-import java.io.FileInputStream;
-
+import org.efac.chess.BoardLocation;
+import org.efac.chess.ChessPiece;
 import org.efac.chess.Chessboard;
+import org.efac.chess.ChessPiece.Color;
+import org.efac.chess.piece.Bishop;
 
 /**
  * JavaFX App
@@ -67,15 +69,9 @@ public class App extends Application {
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
         Chessboard chessboard = new Chessboard(8, 8);
+        chessboard.getLocation(3, 4).setPiece(new Bishop(Color.WHITE));
         setupChessboard(chessboard, scene);
-
-        // GridPane chessboardPane = (GridPane)scene.lookup("#chessboard");
-        // chessboardPane.add(new Button(), 0, 0);
-        // chessboardPane.add(new Button(), 7, 7);
-        
-        // BorderPane block = new BorderPane();
-        // block.setStyle("-fx-background-color: rgb(84, 82, 151);");
-        // chessboardPane.add(block, 4, 4);
+        updateChessboard(chessboard, scene);
 
         stage.setScene(scene);
         stage.setResizable(false);
@@ -98,6 +94,9 @@ public class App extends Application {
         double widthPercentage = 100.0 / ((double)chessboard.getXSize());
         double heightPercentage = 100.0 / ((double)chessboard.getYSize());
 
+        double widthCell = chessboardPane.getPrefWidth() / ((double)chessboard.getXSize());
+        double heightCell = chessboardPane.getPrefHeight() / ((double)chessboard.getYSize());
+
         for (int i = 0; i < chessboard.getXSize(); i++) {
             ColumnConstraints column = new ColumnConstraints();
             column.setPercentWidth(widthPercentage);
@@ -115,6 +114,9 @@ public class App extends Application {
         for (int x = 0; x < chessboard.getXSize(); x++) {
             for (int y = 0; y < chessboard.getYSize(); y++) {
                 BorderPane pane = new BorderPane();
+                pane.setPrefSize(widthCell, heightCell);
+                pane.setMinSize(widthCell, heightCell);
+                pane.setMaxSize(widthCell, heightCell);
                 
                 if (x % 2 == 0 && y % 2 == 1 || x % 2 == 1 && y % 2 == 0) {
                     pane.setStyle("-fx-background-color: #793e30;");   
@@ -125,5 +127,53 @@ public class App extends Application {
                 chessboardPane.add(pane, x, y);
             }
         }
+    }
+
+    private void updateChessboard(Chessboard chessboard, Scene scene) {
+        updateChessboard(chessboard, (GridPane)scene.lookup("#chessboard"));
+    }
+
+    private void updateChessboard(Chessboard chessboard, GridPane chessboardPane) {
+        // for (int x = 0; x < chessboard.getXSize(); x++) {
+        //     for (int y = 0; y < chessboard.getYSize(); y++) {
+        //         BoardLocation location = chessboard.getLocation(x, y);
+
+        //         if (!location.isFree()) {
+        //             ImageView view = new ImageView(new Image(getClass().getResourceAsStream("/img/black_queen.png")));
+
+        //             chessboardPane.
+
+        //             view.fitWidthProperty().bind(((BorderPane)chessboardPane.getChildren().get(0)).widthProperty());
+        //             view.fitHeightProperty().bind(((BorderPane)chessboardPane.getChildren().get(0)).heightProperty());
+        //             chessboardPane.add(view, x, y);
+        //         }
+        //     }
+        // }
+
+        // for (Border)
+
+        for (javafx.scene.Node node : chessboardPane.getChildren()) {
+            BorderPane pane = (BorderPane)node;
+            pane.setCenter(null);
+
+            int x = GridPane.getColumnIndex(pane);
+            int y = GridPane.getRowIndex(pane);
+            BoardLocation location = chessboard.getLocation(x, y);
+
+            if (!location.isFree()) {
+                ImageView view = new ImageView(getChessPieceImage(location.getPiece()));
+                view.fitWidthProperty().bind(pane.widthProperty());
+                view.fitHeightProperty().bind(pane.heightProperty());
+                pane.setCenter(view);
+            }
+        }
+        // chessboardPane.add(view, 3, 4);
+    }
+
+    private Image getChessPieceImage(ChessPiece piece) {
+        String typeString = piece.getType().toString().toLowerCase();
+        String colorString = piece.getColor().toString().toLowerCase();
+
+        return new Image(getClass().getResourceAsStream("/img/" + colorString + "_" + typeString + ".png"));
     }
 }

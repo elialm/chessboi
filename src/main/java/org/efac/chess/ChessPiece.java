@@ -28,5 +28,30 @@ package org.efac.chess;
 import java.util.ArrayList;
 
 public abstract class ChessPiece {
+    public enum Type {
+        PAWN,
+        TOWER,
+        HORSE,
+        BISHOP,
+        QUEEN,
+        KING
+    }
+
+    public enum Color {
+        WHITE,
+        BLACK
+    }
+
+    private Type type;
+    private Color color;
+
+    public Type getType() { return type; }
+    public Color getColor() { return color; }
+
+    public ChessPiece(Type type, Color color) {
+        this.type = type;
+        this.color = color;
+    }
+
     public abstract ArrayList<BoardLocation> getPossibleMoves(BoardLocation location);
 }

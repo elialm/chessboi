@@ -78,4 +78,8 @@ public class BoardLocation {
     public ArrayList<BoardLocation> getPossibleMoves() {
         return chessPiece != null ? chessPiece.getPossibleMoves(this) : null;
     }
+
+    public boolean isFree() {
+        return chessPiece == null;
+    }
 }
