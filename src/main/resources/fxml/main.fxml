@@ -32,7 +32,7 @@
     SOFTWARE.
 -->
 
-<BorderPane>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.efac.ChessboardController">
     <left>
         <VBox id="controls" prefWidth="300">
             <Label text="Chessboard size"/>
@@ -48,7 +48,7 @@
                 </right>
             </BorderPane>
             <AnchorPane id="controls-chessboard-size-button">
-                <Button text="Update size" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                <Button text="Update size" onAction="#pressed" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
         </VBox>
     </left>
