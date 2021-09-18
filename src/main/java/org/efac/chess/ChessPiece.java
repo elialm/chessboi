@@ -1,8 +1,8 @@
 package org.efac.chess;
 
-import org.efac.chess.BoardLocation;
-import org.efac.chess.Chessboard;
+// import org.efac.chess.BoardLocation;
+import java.util.ArrayList;
 
 public abstract class ChessPiece {
-    public abstract BoardLocation[] getPossibleMoves(BoardLocation location);
+    public abstract ArrayList<BoardLocation> getPossibleMoves(BoardLocation location);
 }

@@ -1,13 +1,19 @@
 package org.efac.chess.piece;
 
 import org.efac.chess.ChessPiece;
-
+import org.efac.chess.BoardLocation;
+import org.efac.chess.Point;
 import java.util.ArrayList;
 
-import org.efac.chess.BoardLocation;
-import org.efac.chess.Chessboard;
-
 public class Bishop extends ChessPiece {
+    
+    private static Point relativeDirections[] = {
+        new Point(-1, -1),
+        new Point(-1,  1),
+        new Point( 1, -1),
+        new Point( 1,  1)
+    };
+
     /**
      *      p  -  -  -  p
      *      -  p  -  p  -
@@ -15,13 +21,18 @@ public class Bishop extends ChessPiece {
      *      -  p  -  p  -
      *      p  -  -  -  p
      */
-    public BoardLocation[] getPossibleMoves(BoardLocation location) {
+    public ArrayList<BoardLocation> getPossibleMoves(BoardLocation location) {
         ArrayList<BoardLocation> possibleMoves = new ArrayList<BoardLocation>();
 
-        for (BoardLocation nextLocation = location.getRelativeLocationSafe(1, 1); nextLocation != null; nextLocation = nextLocation.getRelativeLocationSafe(1, 1)) {
-            System.out.println(nextLocation);
+        for (Point direction : relativeDirections) {
+            int xComponent = direction.getXComponent();
+            int yComponent = direction.getYComponent();
+
+            for (BoardLocation nextLocation = location.getRelativeLocation(xComponent, yComponent); nextLocation != null; nextLocation = nextLocation.getRelativeLocation(xComponent, yComponent)) {
+                possibleMoves.add(nextLocation);
+            }
         }
 
-        return null;
+        return possibleMoves;
     }
 }

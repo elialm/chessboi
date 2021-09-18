@@ -2,6 +2,7 @@ package org.efac.chess;
 
 import org.efac.chess.Chessboard;
 import org.efac.chess.ChessPiece;
+import java.util.ArrayList;
 import java.security.InvalidParameterException;
 
 public class BoardLocation {
@@ -48,15 +49,10 @@ public class BoardLocation {
     }
 
     public BoardLocation getRelativeLocationSafe(int xRelative, int yRelative) {
-        try {
-            return chessboard.getLocation(xLocation + xRelative, yLocation + yRelative);
-        } 
-        catch (InvalidParameterException exception) {
-            return null;
-        }
+        return chessboard.getLocationSafe(xLocation + xRelative, yLocation + yRelative);
     }
 
-    public BoardLocation[] getPossibleMoves() {
-        return chessPiece != null ? chessPiece.getPossibleMoves(this) : new BoardLocation[0];
+    public ArrayList<BoardLocation> getPossibleMoves() {
+        return chessPiece != null ? chessPiece.getPossibleMoves(this) : null;
     }
 }

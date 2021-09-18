@@ -33,6 +33,10 @@ public class Chessboard {
     }
 
     public BoardLocation getLocation(int xLocation, int yLocation) {
+        return isInBounds(xLocation, yLocation) ? boardLocations[xLocation][yLocation] : null;
+    }
+
+    public BoardLocation getLocationSafe(int xLocation, int yLocation) {
         checkIfInBounds(xLocation, yLocation);
         return boardLocations[xLocation][yLocation];
     }
@@ -58,12 +62,12 @@ public class Chessboard {
     public void checkIfInBounds(int xLocation, int yLocation) {
         if (!isInBounds(xLocation, yLocation)) {
             throw new InvalidParameterException("Location is out of bounds, requested ("
-                    + xLocation + ", " + yLocation + ") from board of size " + xSize + " by "
-                    + ySize);
+                    + xLocation + ", " + yLocation + ") from board of size " + xSize
+                    + " by " + ySize);
         }
     }
 
-    private boolean isInBounds(int xLocation, int yLocation) {
-        return xLocation < xSize && yLocation < ySize;
+    public boolean isInBounds(int xLocation, int yLocation) {
+        return xLocation >= 0 && yLocation >= 0 && xLocation < xSize && yLocation < ySize;
     }
 }
