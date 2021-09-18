@@ -35,6 +35,8 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+
 import java.io.FileInputStream;
 
 import org.efac.chess.Chessboard;
@@ -46,11 +48,6 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        // var javaVersion = SystemInfo.javaVersion();
-        // var javafxVersion = SystemInfo.javafxVersion();
-
-        stage.setTitle("chessboi");
-
         var loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/fxml/main.fxml"));
 
@@ -67,15 +64,15 @@ public class App extends Application {
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
         Chessboard chessboard = new Chessboard(8, 8);
-        setupChessboard(scene, chessboard);
+        setupChessboard(chessboard, scene);
 
-        GridPane chessboardPane = (GridPane)scene.lookup("#chessboard");
-        chessboardPane.add(new Button(), 0, 0);
-        chessboardPane.add(new Button(), 7, 7);
+        // GridPane chessboardPane = (GridPane)scene.lookup("#chessboard");
+        // chessboardPane.add(new Button(), 0, 0);
+        // chessboardPane.add(new Button(), 7, 7);
         
-        BorderPane block = new BorderPane();
-        block.setStyle("-fx-background-color: rgb(84, 82, 151);");
-        chessboardPane.add(block, 4, 4);
+        // BorderPane block = new BorderPane();
+        // block.setStyle("-fx-background-color: rgb(84, 82, 151);");
+        // chessboardPane.add(block, 4, 4);
 
         stage.setScene(scene);
         stage.setResizable(false);
@@ -86,11 +83,14 @@ public class App extends Application {
         launch();
     }
 
-    private void setupChessboard(Scene scene, Chessboard chessboard) {
-        GridPane chessboardPane = (GridPane)scene.lookup("#chessboard");
+    private void setupChessboard(Chessboard chessboard, Scene scene) {
+        setupChessboard(chessboard, (GridPane)scene.lookup("#chessboard"));
+    }
 
+    private void setupChessboard(Chessboard chessboard, GridPane chessboardPane) {
         chessboardPane.getColumnConstraints().clear();
         chessboardPane.getRowConstraints().clear();
+        chessboardPane.getChildren().clear();
 
         double widthPercentage = 100.0 / ((double)chessboard.getXSize());
         double heightPercentage = 100.0 / ((double)chessboard.getYSize());
@@ -107,6 +107,20 @@ public class App extends Application {
             row.setPercentHeight(heightPercentage);
             
             chessboardPane.getRowConstraints().add(row);
+        }
+
+        for (int x = 0; x < chessboard.getXSize(); x++) {
+            for (int y = 0; y < chessboard.getYSize(); y++) {
+                BorderPane pane = new BorderPane();
+                
+                if (x % 2 == 0 && y % 2 == 1 || x % 2 == 1 && y % 2 == 0) {
+                    pane.setStyle("-fx-background-color: #793e30;");   
+                } else {
+                    pane.setStyle("-fx-background-color: #fdf3ae;");
+                }
+
+                chessboardPane.add(pane, x, y);
+            }
         }
     }
 }
