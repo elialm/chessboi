@@ -18,7 +18,7 @@ public class Bishop extends ChessPiece {
     public BoardLocation[] getPossibleMoves(BoardLocation location) {
         ArrayList<BoardLocation> possibleMoves = new ArrayList<BoardLocation>();
 
-        for (BoardLocation nextLocation = location.getRelativeLocation(1, 1); nextLocation != null; nextLocation = nextLocation.getRelativeLocation(1, 1)) {
+        for (BoardLocation nextLocation = location.getRelativeLocationSafe(1, 1); nextLocation != null; nextLocation = nextLocation.getRelativeLocationSafe(1, 1)) {
             System.out.println(nextLocation);
         }
 
