@@ -38,6 +38,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 
 public class ChessboardBuilder {
+    private static double chessboardPaneMaxSize = 550.0;
+    
     public static void setupChessboard(Chessboard chessboard, Scene scene) {
         setupChessboard(chessboard, (GridPane)scene.lookup("#chessboardPane"));
     }
@@ -49,6 +51,12 @@ public class ChessboardBuilder {
 
         double widthPercentage = 100.0 / ((double)chessboard.getXSize());
         double heightPercentage = 100.0 / ((double)chessboard.getYSize());
+
+        if (chessboard.getXSize() != chessboard.getYSize()) {
+            resizeChessboardPane(chessboardPane, chessboard);
+        } else {
+            setChessboardPaneSize(chessboardPane, chessboardPaneMaxSize, chessboardPaneMaxSize);
+        }
 
         double widthCell = chessboardPane.getPrefWidth() / ((double)chessboard.getXSize());
         double heightCell = chessboardPane.getPrefHeight() / ((double)chessboard.getYSize());
@@ -112,5 +120,24 @@ public class ChessboardBuilder {
         String colorString = piece.getColor().toString().toLowerCase();
 
         return new Image(ChessboardBuilder.class.getResourceAsStream("/img/" + colorString + "_" + typeString + ".png"));
+    }
+
+    private static void resizeChessboardPane(GridPane chessboardPane, Chessboard chessboard) {
+        double smallerDimension = Math.min(chessboard.getXSize(), chessboard.getYSize());
+        int biggerDimension = Math.max(chessboard.getXSize(), chessboard.getYSize());
+
+        smallerDimension *= chessboardPaneMaxSize / (double)biggerDimension;
+
+        if (biggerDimension == chessboard.getXSize()) {
+            setChessboardPaneSize(chessboardPane, chessboardPaneMaxSize, smallerDimension);
+        } else {
+            setChessboardPaneSize(chessboardPane, smallerDimension, chessboardPaneMaxSize);
+        }
+    }
+
+    private static void setChessboardPaneSize(GridPane chessboardPane, double xSize, double ySize) {
+        chessboardPane.setMinSize(xSize, ySize);
+        chessboardPane.setMaxSize(xSize, ySize);
+        chessboardPane.setPrefSize(xSize, ySize);
     }
 }
