@@ -40,6 +40,11 @@ public class ChessboardController {
             handleInvalidIntegerInput(ex);
             return;
         }
+
+        if (chessboardWidth < 0 || chessboardHeight < 0) {
+            handleNegativeIntegerInput();
+            return;
+        }
         
         System.out.println("pressed!");
     }
@@ -51,6 +56,16 @@ public class ChessboardController {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setHeaderText("Number input error");
         alert.setContentText("\"" + matcher.group(1) + "\" is not an integer value, please insert an integer value");
+        alert.showAndWait();
+
+        this.chessboardWidth.setText("8");
+        this.chessboardHeight.setText("8");
+    }
+
+    private void handleNegativeIntegerInput() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setHeaderText("Number input error");
+        alert.setContentText("Negative numbers are not allowed as board dimensions, please enter only positive integers");
         alert.showAndWait();
 
         this.chessboardWidth.setText("8");
