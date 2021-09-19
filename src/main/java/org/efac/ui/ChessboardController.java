@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 import org.efac.chess.Chessboard;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;
+import org.efac.chess.piece.Queen;
 
 import java.util.regex.Matcher;
 
@@ -92,7 +93,9 @@ public class ChessboardController {
         }
 
         chessboard = new Chessboard(chessboardWidth, chessboardHeight);
-        chessboard.getLocation(chessboardWidth / 2, chessboardHeight / 2).setPiece(new Bishop(Color.WHITE));
+        // chessboard.getLocation(chessboardWidth / 2, chessboardHeight / 2).setPiece(new Bishop(Color.WHITE));
+        // chessboard.getLocation(chessboardWidth / 4, chessboardHeight - 1).setPiece(new Queen(Color.WHITE));
+        // chessboard.getLocation(chessboardWidth / 2, chessboardHeight / 2).setPiece(new Queen(Color.WHITE));
 
         ChessboardBuilder.setupChessboard(chessboard, chessboardPane);
         ChessboardBuilder.updateChessboard(chessboard, chessboardPane);

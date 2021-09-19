@@ -27,9 +27,14 @@ package org.efac.ui;
 
 import org.efac.chess.Chessboard;
 import org.efac.chess.ChessPiece;
+
+import java.util.ArrayList;
+
 import org.efac.chess.BoardLocation;
 
 import javafx.scene.Scene;
+import javafx.scene.Node;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
@@ -111,13 +116,35 @@ public class ChessboardBuilder {
                 view.fitWidthProperty().bind(pane.widthProperty());
                 view.fitHeightProperty().bind(pane.heightProperty());
                 pane.setCenter(view);
-            } else {
-                ImageView view = new ImageView(new Image(ChessboardBuilder.class.getResourceAsStream("/img/under_attack.png")));
-                view.fitWidthProperty().bind(pane.widthProperty());
-                view.fitHeightProperty().bind(pane.heightProperty());
-                pane.setCenter(view);
             }
         }
+
+        updatePossibleMoves(chessboard, chessboardPane);
+    }
+
+    private static void updatePossibleMoves(Chessboard chessboard, GridPane chessboardPane) {
+        for (BoardLocation filledLocation : chessboard.getFilledLocations()) {
+            ArrayList<BoardLocation> possibleMoves = filledLocation.getPossibleMoves();
+
+            for (BoardLocation possibleMove : possibleMoves) {
+                BorderPane cell = getCellByBoardLocation(chessboardPane, possibleMove);
+
+                ImageView view = new ImageView(new Image(ChessboardBuilder.class.getResourceAsStream("/img/under_attack.png")));
+                view.fitWidthProperty().bind(cell.widthProperty());
+                view.fitHeightProperty().bind(cell.heightProperty());
+                cell.setCenter(view);
+            }
+        }
+    }
+
+    private static BorderPane getCellByBoardLocation(GridPane chessboardPane, BoardLocation location) {
+        for (Node node : chessboardPane.getChildren()) {
+            if (GridPane.getRowIndex(node) == location.getYLocation() && GridPane.getColumnIndex(node) == location.getXLocation()) {
+                return (BorderPane)node;
+            }
+        }
+
+        return null;
     }
 
     private static Image getChessPieceImage(ChessPiece piece) {
