@@ -69,7 +69,7 @@
     <center>
         <BorderPane id="chessboard-container" prefWidth="600">
             <center>
-                <GridPane fx:id="chessboardPane" maxWidth="550" maxHeight="550" minWidth="550" minHeight="550" prefWidth="550" prefHeight="550">
+                <GridPane fx:id="chessboardPane" id="chessboard-pane" maxWidth="550" maxHeight="550" minWidth="550" minHeight="550" prefWidth="550" prefHeight="550">
                     <Label text="Create a chessboard to show here"/>
                 </GridPane>
             </center>

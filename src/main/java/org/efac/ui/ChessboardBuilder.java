@@ -46,6 +46,9 @@ import javafx.scene.layout.GridPane;
 
 public class ChessboardBuilder {
     private static double chessboardPaneMaxSize = 550.0;
+    private static String generalBoardLocationStyle = "-fx-border-color: #1e1e1e;-fx-border-radius: 6;-fx-border-width: 4;-fx-background-insets: 4;";
+    private static String darkBoardLocationStyle = "-fx-background-color: #793e30;" + generalBoardLocationStyle;
+    private static String lightBoardLocationStyle = "-fx-background-color: #fdf3ae;" + generalBoardLocationStyle;
 
     private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
     private Chessboard chessboard;
@@ -97,9 +100,9 @@ public class ChessboardBuilder {
                 pane.addEventHandler(MouseEvent.MOUSE_RELEASED, chessboardLocationMouseEventHandler);
                 
                 if (x % 2 == 0 && y % 2 == 1 || x % 2 == 1 && y % 2 == 0) {
-                    pane.setStyle("-fx-background-color: #793e30;");   
+                    pane.setStyle(darkBoardLocationStyle);   
                 } else {
-                    pane.setStyle("-fx-background-color: #fdf3ae;");
+                    pane.setStyle(lightBoardLocationStyle);
                 }
 
                 chessboardPane.add(pane, x, y);
