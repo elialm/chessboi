@@ -34,6 +34,7 @@ public class Chessboard {
 
     public int getXSize() { return xSize; }
     public int getYSize() { return ySize; }
+    public ChessPieceIterator getPieces() { return new ChessPieceIterator(this); }
 
     public Chessboard(int xSize, int ySize) {
         if (xSize < 0) {
