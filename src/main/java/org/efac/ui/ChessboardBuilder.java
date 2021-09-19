@@ -111,6 +111,11 @@ public class ChessboardBuilder {
                 view.fitWidthProperty().bind(pane.widthProperty());
                 view.fitHeightProperty().bind(pane.heightProperty());
                 pane.setCenter(view);
+            } else {
+                ImageView view = new ImageView(new Image(ChessboardBuilder.class.getResourceAsStream("/img/under_attack.png")));
+                view.fitWidthProperty().bind(pane.widthProperty());
+                view.fitHeightProperty().bind(pane.heightProperty());
+                pane.setCenter(view);
             }
         }
     }
