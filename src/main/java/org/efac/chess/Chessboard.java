@@ -27,6 +27,10 @@ package org.efac.chess;
 
 import java.security.InvalidParameterException;
 
+import org.efac.chess.iter.BoardLocationIterable;
+import org.efac.chess.iter.ChessPieceIterable;
+import org.efac.chess.iter.FilledBoardLocationIterable;
+
 public class Chessboard {
     int xSize;
     int ySize;
@@ -34,7 +38,9 @@ public class Chessboard {
 
     public int getXSize() { return xSize; }
     public int getYSize() { return ySize; }
-    public ChessPieceIterator getPieces() { return new ChessPieceIterator(this); }
+    public BoardLocationIterable getLocations() { return new BoardLocationIterable(this); }
+    public FilledBoardLocationIterable getFilledLocations() { return new FilledBoardLocationIterable(getLocations()); }
+    public ChessPieceIterable getPieces() { return new ChessPieceIterable(getFilledLocations()); }
 
     public Chessboard(int xSize, int ySize) {
         if (xSize < 0) {

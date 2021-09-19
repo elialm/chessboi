@@ -1,4 +1,4 @@
-package org.efac.chess;
+package org.efac.chess.iter;
 
 /**
  *  MIT License
@@ -25,23 +25,21 @@ package org.efac.chess;
 
  */
 
-import org.efac.chess.ChessPiece;
-
 import java.util.Iterator;
 
-public class ChessPieceIterator implements Iterable<ChessPiece> {
-    
-    private Chessboard chessboard;
+import org.efac.chess.BoardLocation;
+import org.efac.chess.ChessPiece;
 
-    public ChessPieceIterator(Chessboard chessboard) {
-        this.chessboard = chessboard;
+public class ChessPieceIterable implements Iterable<ChessPiece> {
+    private Iterator<BoardLocation> boardIterator;
+
+    public ChessPieceIterable(FilledBoardLocationIterable iterable) {
+        this.boardIterator = iterable.iterator();
     }
 
     @Override
     public Iterator<ChessPiece> iterator() {
         Iterator<ChessPiece> it = new Iterator<ChessPiece>() {
-            private int currentX = 0;
-            private int currentY = 0;
             private ChessPiece next = null;
             
             @Override
@@ -71,26 +69,12 @@ public class ChessPieceIterator implements Iterable<ChessPiece> {
             }
 
             private ChessPiece findNext() {
-                ChessPiece piece = null; 
-
-                columnLoop:
-                for (; currentX < chessboard.getXSize(); currentX++) {
-                    for (; currentY < chessboard.getYSize(); currentY++) {
-                        piece = chessboard.getPiece(currentX, currentY);
-
-                        if (piece != null) {
-                            currentY++;
-                            break columnLoop;
-                        }
-                    }
+                while (boardIterator.hasNext()) {
+                    BoardLocation location = boardIterator.next();
+                    return location.getPiece();
                 }
 
-                if (currentY == chessboard.getYSize()) {
-                    currentX++;
-                    currentY = 0;
-                }
-
-                return piece;
+                return null;
             }
         };
 

@@ -1,12 +1,9 @@
 package org.efac.chess;
 
-import org.efac.chess.ChessPieceIterator;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
 import org.junit.jupiter.api.Test;
-
-import javafx.print.Collation;
 
 public class ChessPieceIteratorTest {
     
