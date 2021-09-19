@@ -28,19 +28,23 @@ package org.efac.chess.piece;
 import org.efac.chess.ChessPiece;
 import org.efac.chess.BoardLocation;
 import org.efac.chess.Point;
+
 import java.util.ArrayList;
 
-public class Bishop extends ChessPiece {
-    
+public class Queen extends ChessPiece {
     private static Point relativeDirections[] = {
         new Point(-1, -1),
+        new Point(-1,  0),
         new Point(-1,  1),
+        new Point( 0,  1),
         new Point( 1, -1),
-        new Point( 1,  1)
+        new Point( 1,  0),
+        new Point( 1,  1),
+        new Point( 0,  1)
     };
 
-    public Bishop(Color color) {
-        super(Type.BISHOP, color);
+    public Queen(Color color) {
+        super(Type.QUEEN, color);
     }
 
     public ArrayList<BoardLocation> getPossibleMoves(BoardLocation location) {
