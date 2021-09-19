@@ -27,14 +27,22 @@ package org.efac.chess;
 
 import java.util.ArrayList;
 
-public abstract class ChessPiece {
+public abstract class ChessPiece implements Comparable<ChessPiece> {
     public enum Type {
-        PAWN,
-        TOWER,
-        HORSE,
-        BISHOP,
-        QUEEN,
-        KING
+        PAWN(1),
+        TOWER(2),
+        HORSE(3),
+        BISHOP(4),
+        QUEEN(5),
+        KING(6);
+
+        private int value;
+
+        public int getValue() { return value; }
+
+        private Type(int value) {
+            this.value = value;
+        }
     }
 
     public enum Color {
@@ -51,6 +59,14 @@ public abstract class ChessPiece {
     public ChessPiece(Type type, Color color) {
         this.type = type;
         this.color = color;
+    }
+
+    public int compareTo(ChessPiece other) {
+        if (color != other.getColor()) {
+            return color == Color.WHITE ? 10 : -10;
+        } else {
+            return type.getValue() - other.getType().getValue();
+        }
     }
 
     public abstract ArrayList<BoardLocation> getPossibleMoves(BoardLocation location);
