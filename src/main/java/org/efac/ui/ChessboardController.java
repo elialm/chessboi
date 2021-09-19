@@ -34,6 +34,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.GridPane;
 
 import java.util.regex.Pattern;
@@ -62,6 +63,9 @@ public class ChessboardController {
     @FXML
     private Button chessboardUpdate;
 
+    @FXML
+    private ComboBox<String> chessPieceType;
+
     public ChessboardController() {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
         chessboard = null;
@@ -77,6 +81,8 @@ public class ChessboardController {
     public void setupChessboard(ActionEvent event) {
         int chessboardWidth;
         int chessboardHeight;
+
+        // System.out.println(chessPieceType.getSelectionModel().getSelectedItem());
         
         try {
             chessboardWidth = Integer.parseInt(this.chessboardWidth.getText());
