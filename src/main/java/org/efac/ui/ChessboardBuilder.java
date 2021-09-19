@@ -134,12 +134,16 @@ public class ChessboardBuilder {
             ArrayList<BoardLocation> possibleMoves = filledLocation.getPossibleMoves();
 
             for (BoardLocation possibleMove : possibleMoves) {
-                BorderPane cell = getCellByBoardLocation(possibleMove);
+                if (possibleMove.isFree()) {
+                    BorderPane cell = getCellByBoardLocation(possibleMove);
 
-                ImageView view = new ImageView(new Image(ChessboardBuilder.class.getResourceAsStream("/img/under_attack_3.png")));
-                view.fitWidthProperty().bind(cell.widthProperty());
-                view.fitHeightProperty().bind(cell.heightProperty());
-                cell.setCenter(view);
+                    if (cell.getCenter() == null) {
+                        ImageView view = new ImageView(new Image(ChessboardBuilder.class.getResourceAsStream("/img/under_attack_3.png")));
+                        view.fitWidthProperty().bind(cell.widthProperty());
+                        view.fitHeightProperty().bind(cell.heightProperty());
+                        cell.setCenter(view);
+                    }
+                }
             }
         }
     }
