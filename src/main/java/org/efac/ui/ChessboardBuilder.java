@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import org.efac.chess.BoardLocation;
 
 import javafx.scene.Scene;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
@@ -40,16 +41,36 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
 public class ChessboardBuilder {
     private static double chessboardPaneMaxSize = 550.0;
+
+    private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
+    private Chessboard chessboard;
+    private GridPane chessboardPane;
+    private ChessboardController controller;
+
+    public ChessboardBuilder(Chessboard chessboard, GridPane chessboardPane, ChessboardController controller) {
+        this.chessboard = chessboard;
+        this.chessboardPane = chessboardPane;
+        this.controller = controller;
+
+        chessboardLocationMouseEventHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                BorderPane source = (BorderPane)e.getSource();
     
-    public static void setupChessboard(Chessboard chessboard, Scene scene) {
-        setupChessboard(chessboard, (GridPane)scene.lookup("#chessboardPane"));
+                int columnIndex = GridPane.getColumnIndex(source);
+                int rowIndex = GridPane.getRowIndex(source);
+    
+                controller.handleBoardLocationClick(source, chessboard.getLocationSafe(columnIndex, rowIndex));
+            }
+        };
     }
 
-    public static void setupChessboard(Chessboard chessboard, GridPane chessboardPane) {
+    public void setupChessboard() {
         chessboardPane.getColumnConstraints().clear();
         chessboardPane.getRowConstraints().clear();
         chessboardPane.getChildren().clear();
@@ -58,9 +79,9 @@ public class ChessboardBuilder {
         double heightPercentage = 100.0 / ((double)chessboard.getYSize());
 
         if (chessboard.getXSize() != chessboard.getYSize()) {
-            resizeChessboardPane(chessboardPane, chessboard);
+            resizeChessboardPane();
         } else {
-            setChessboardPaneSize(chessboardPane, chessboardPaneMaxSize, chessboardPaneMaxSize);
+            setChessboardPaneSize(chessboardPaneMaxSize, chessboardPaneMaxSize);
         }
 
         double widthCell = chessboardPane.getPrefWidth() / ((double)chessboard.getXSize());
@@ -86,6 +107,7 @@ public class ChessboardBuilder {
                 pane.setPrefSize(widthCell, heightCell);
                 pane.setMinSize(widthCell, heightCell);
                 pane.setMaxSize(widthCell, heightCell);
+                pane.addEventHandler(MouseEvent.MOUSE_RELEASED, chessboardLocationMouseEventHandler);
                 
                 if (x % 2 == 0 && y % 2 == 1 || x % 2 == 1 && y % 2 == 0) {
                     pane.setStyle("-fx-background-color: #793e30;");   
@@ -98,11 +120,7 @@ public class ChessboardBuilder {
         }
     }
 
-    public static void updateChessboard(Chessboard chessboard, Scene scene) {
-        updateChessboard(chessboard, (GridPane)scene.lookup("#chessboardPane"));
-    }
-
-    public static void updateChessboard(Chessboard chessboard, GridPane chessboardPane) {
+    public void updateChessboard() {
         for (javafx.scene.Node node : chessboardPane.getChildren()) {
             BorderPane pane = (BorderPane)node;
             pane.setCenter(null);
@@ -116,18 +134,20 @@ public class ChessboardBuilder {
                 view.fitWidthProperty().bind(pane.widthProperty());
                 view.fitHeightProperty().bind(pane.heightProperty());
                 pane.setCenter(view);
+            } else {
+                pane.setCenter(null);
             }
         }
 
-        updatePossibleMoves(chessboard, chessboardPane);
+        updatePossibleMoves();
     }
 
-    private static void updatePossibleMoves(Chessboard chessboard, GridPane chessboardPane) {
+    private void updatePossibleMoves() {
         for (BoardLocation filledLocation : chessboard.getFilledLocations()) {
             ArrayList<BoardLocation> possibleMoves = filledLocation.getPossibleMoves();
 
             for (BoardLocation possibleMove : possibleMoves) {
-                BorderPane cell = getCellByBoardLocation(chessboardPane, possibleMove);
+                BorderPane cell = getCellByBoardLocation(possibleMove);
 
                 ImageView view = new ImageView(new Image(ChessboardBuilder.class.getResourceAsStream("/img/under_attack_3.png")));
                 view.fitWidthProperty().bind(cell.widthProperty());
@@ -137,7 +157,7 @@ public class ChessboardBuilder {
         }
     }
 
-    private static BorderPane getCellByBoardLocation(GridPane chessboardPane, BoardLocation location) {
+    private BorderPane getCellByBoardLocation(BoardLocation location) {
         for (Node node : chessboardPane.getChildren()) {
             if (GridPane.getRowIndex(node) == location.getYLocation() && GridPane.getColumnIndex(node) == location.getXLocation()) {
                 return (BorderPane)node;
@@ -147,27 +167,27 @@ public class ChessboardBuilder {
         return null;
     }
 
-    private static Image getChessPieceImage(ChessPiece piece) {
+    private Image getChessPieceImage(ChessPiece piece) {
         String typeString = piece.getType().toString().toLowerCase();
         String colorString = piece.getColor().toString().toLowerCase();
 
         return new Image(ChessboardBuilder.class.getResourceAsStream("/img/" + colorString + "_" + typeString + ".png"));
     }
 
-    private static void resizeChessboardPane(GridPane chessboardPane, Chessboard chessboard) {
+    private void resizeChessboardPane() {
         double smallerDimension = Math.min(chessboard.getXSize(), chessboard.getYSize());
         int biggerDimension = Math.max(chessboard.getXSize(), chessboard.getYSize());
 
         smallerDimension *= chessboardPaneMaxSize / (double)biggerDimension;
 
         if (biggerDimension == chessboard.getXSize()) {
-            setChessboardPaneSize(chessboardPane, chessboardPaneMaxSize, smallerDimension);
+            setChessboardPaneSize(chessboardPaneMaxSize, smallerDimension);
         } else {
-            setChessboardPaneSize(chessboardPane, smallerDimension, chessboardPaneMaxSize);
+            setChessboardPaneSize(smallerDimension, chessboardPaneMaxSize);
         }
     }
 
-    private static void setChessboardPaneSize(GridPane chessboardPane, double xSize, double ySize) {
+    private void setChessboardPaneSize(double xSize, double ySize) {
         chessboardPane.setMinSize(xSize, ySize);
         chessboardPane.setMaxSize(xSize, ySize);
         chessboardPane.setPrefSize(xSize, ySize);

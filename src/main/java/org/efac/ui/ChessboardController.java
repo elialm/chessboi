@@ -36,10 +36,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.BorderPane;
 
 import java.util.regex.Pattern;
 
 import org.efac.chess.Chessboard;
+import org.efac.chess.BoardLocation;
+import org.efac.chess.ChessPiece;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
@@ -50,6 +53,7 @@ public class ChessboardController {
     
     private Pattern numberFormatExceptionPattern;
     private Chessboard chessboard;
+    private ChessboardBuilder chessboardBuilder;
 
     @FXML
     private TextField chessboardWidth;
@@ -69,6 +73,7 @@ public class ChessboardController {
     public ChessboardController() {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
         chessboard = null;
+        chessboardBuilder = null;
     }
 
     @FXML
@@ -82,8 +87,6 @@ public class ChessboardController {
         int chessboardWidth;
         int chessboardHeight;
 
-        // System.out.println(chessPieceType.getSelectionModel().getSelectedItem());
-        
         try {
             chessboardWidth = Integer.parseInt(this.chessboardWidth.getText());
             chessboardHeight = Integer.parseInt(this.chessboardHeight.getText());
@@ -108,8 +111,9 @@ public class ChessboardController {
         // chessboard.getLocation(chessboardWidth / 4, chessboardHeight - 1).setPiece(new Queen(Color.WHITE));
         // chessboard.getLocation(chessboardWidth / 2, chessboardHeight / 2).setPiece(new Queen(Color.WHITE));
 
-        ChessboardBuilder.setupChessboard(chessboard, chessboardPane);
-        ChessboardBuilder.updateChessboard(chessboard, chessboardPane);
+        chessboardBuilder = new ChessboardBuilder(chessboard, chessboardPane, this);
+        chessboardBuilder.setupChessboard();
+        chessboardBuilder.updateChessboard();
 
         ((Button)event.getSource()).setText("Update dimensions");
     }
@@ -127,6 +131,22 @@ public class ChessboardController {
             chessboardPane.requestFocus();
             chessboardUpdate.fire();
         }
+    }
+
+    public void handleBoardLocationClick(BorderPane source, BoardLocation location) {
+        if (!location.isFree()) {
+            return;
+        }
+        
+        ChessPiece piece = null;
+        
+        switch (chessPieceType.getSelectionModel().getSelectedItem()) {
+            case "Bishop": piece = new Bishop(Color.WHITE); break;
+            case "Queen": piece = new Queen(Color.WHITE); break;
+        }
+
+        location.setPiece(piece);
+        chessboardBuilder.updateChessboard();
     }
 
     private void handleInvalidIntegerInput(NumberFormatException ex) {
