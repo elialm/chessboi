@@ -28,11 +28,13 @@ package org.efac.ui;
 import javafx.fxml.FXML;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
+import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.GridPane;
@@ -54,6 +56,7 @@ public class ChessboardController {
     private Pattern numberFormatExceptionPattern;
     private Chessboard chessboard;
     private ChessboardBuilder chessboardBuilder;
+    private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
 
     @FXML
     private TextField chessboardWidth;
@@ -74,6 +77,18 @@ public class ChessboardController {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
         chessboard = null;
         chessboardBuilder = null;
+
+        chessboardLocationMouseEventHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                BorderPane source = (BorderPane)e.getSource();
+    
+                int columnIndex = GridPane.getColumnIndex(source);
+                int rowIndex = GridPane.getRowIndex(source);
+    
+                handleBoardLocationClick(source, chessboard.getLocationSafe(columnIndex, rowIndex));
+            }
+        };
     }
 
     @FXML
@@ -111,7 +126,7 @@ public class ChessboardController {
         // chessboard.getLocation(chessboardWidth / 4, chessboardHeight - 1).setPiece(new Queen(Color.WHITE));
         // chessboard.getLocation(chessboardWidth / 2, chessboardHeight / 2).setPiece(new Queen(Color.WHITE));
 
-        chessboardBuilder = new ChessboardBuilder(chessboard, chessboardPane, this);
+        chessboardBuilder = new ChessboardBuilder(chessboard, chessboardPane, chessboardLocationMouseEventHandler);
         chessboardBuilder.setupChessboard();
         chessboardBuilder.updateChessboard();
 

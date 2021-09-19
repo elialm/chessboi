@@ -50,24 +50,11 @@ public class ChessboardBuilder {
     private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
     private Chessboard chessboard;
     private GridPane chessboardPane;
-    private ChessboardController controller;
 
-    public ChessboardBuilder(Chessboard chessboard, GridPane chessboardPane, ChessboardController controller) {
+    public ChessboardBuilder(Chessboard chessboard, GridPane chessboardPane, EventHandler<MouseEvent> chessboardLocationMouseEventHandler) {
         this.chessboard = chessboard;
         this.chessboardPane = chessboardPane;
-        this.controller = controller;
-
-        chessboardLocationMouseEventHandler = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                BorderPane source = (BorderPane)e.getSource();
-    
-                int columnIndex = GridPane.getColumnIndex(source);
-                int rowIndex = GridPane.getRowIndex(source);
-    
-                controller.handleBoardLocationClick(source, chessboard.getLocationSafe(columnIndex, rowIndex));
-            }
-        };
+        this.chessboardLocationMouseEventHandler = chessboardLocationMouseEventHandler;
     }
 
     public void setupChessboard() {
