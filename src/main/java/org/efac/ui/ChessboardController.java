@@ -87,6 +87,11 @@ public class ChessboardController {
             return;
         }
 
+        if (chessboardWidth == 0 || chessboardHeight == 0) {
+            handleZeroIntegerInput();
+            return;
+        }
+
         if (chessboardWidth < 0 || chessboardHeight < 0) {
             handleNegativeIntegerInput();
             return;
@@ -135,6 +140,16 @@ public class ChessboardController {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setHeaderText("Number input error");
         alert.setContentText("Negative numbers are not allowed as board dimensions, please enter only positive integers");
+        alert.showAndWait();
+
+        this.chessboardWidth.setText("8");
+        this.chessboardHeight.setText("8");
+    }
+
+    private void handleZeroIntegerInput() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setHeaderText("Number input error");
+        alert.setContentText("Zero is not allowed as a board dimension, please enter only non-zero, positive integers");
         alert.showAndWait();
 
         this.chessboardWidth.setText("8");
