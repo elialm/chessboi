@@ -49,17 +49,6 @@ public class Queen extends ChessPiece {
     }
 
     public ArrayList<BoardLocation> getPossibleMoves(BoardLocation location) {
-        ArrayList<BoardLocation> possibleMoves = new ArrayList<BoardLocation>();
-
-        for (Point direction : relativeDirections) {
-            int xComponent = direction.getXComponent();
-            int yComponent = direction.getYComponent();
-
-            for (BoardLocation nextLocation = location.getRelativeLocation(xComponent, yComponent); nextLocation != null; nextLocation = nextLocation.getRelativeLocation(xComponent, yComponent)) {
-                possibleMoves.add(nextLocation);
-            }
-        }
-
-        return possibleMoves;
+        return getPossibleMovesInLine(location, relativeDirections);
     }
 }

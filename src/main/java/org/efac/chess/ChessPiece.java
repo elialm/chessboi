@@ -70,4 +70,19 @@ public abstract class ChessPiece implements Comparable<ChessPiece> {
     }
 
     public abstract ArrayList<BoardLocation> getPossibleMoves(BoardLocation location);
+
+    protected ArrayList<BoardLocation> getPossibleMovesInLine(BoardLocation location, Point[] relativeDirections) {
+        ArrayList<BoardLocation> possibleMoves = new ArrayList<BoardLocation>();
+
+        for (Point direction : relativeDirections) {
+            int xComponent = direction.getXComponent();
+            int yComponent = direction.getYComponent();
+
+            for (BoardLocation nextLocation = location.getRelativeLocation(xComponent, yComponent); nextLocation != null && nextLocation.isFree(); nextLocation = nextLocation.getRelativeLocation(xComponent, yComponent)) {
+                possibleMoves.add(nextLocation);
+            }
+        }
+
+        return possibleMoves;
+    }
 }
