@@ -129,7 +129,7 @@ public class ChessboardBuilder {
             for (BoardLocation possibleMove : possibleMoves) {
                 BorderPane cell = getCellByBoardLocation(chessboardPane, possibleMove);
 
-                ImageView view = new ImageView(new Image(ChessboardBuilder.class.getResourceAsStream("/img/under_attack.png")));
+                ImageView view = new ImageView(new Image(ChessboardBuilder.class.getResourceAsStream("/img/under_attack_3.png")));
                 view.fitWidthProperty().bind(cell.widthProperty());
                 view.fitHeightProperty().bind(cell.heightProperty());
                 cell.setCenter(view);
