@@ -31,6 +31,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Alert;
@@ -86,7 +87,12 @@ public class ChessboardController {
                 int columnIndex = GridPane.getColumnIndex(source);
                 int rowIndex = GridPane.getRowIndex(source);
     
-                handleBoardLocationClick(source, chessboard.getLocationSafe(columnIndex, rowIndex));
+                if (e.getButton() == MouseButton.PRIMARY) {
+                    addSelectedChessPiece(chessboard.getLocationSafe(columnIndex, rowIndex));
+                } else if (e.getButton() == MouseButton.SECONDARY) {
+                    chessboard.getLocationSafe(columnIndex, rowIndex).setPiece(null);
+                    chessboardBuilder.updateChessboard();
+                } 
             }
         };
     }
@@ -148,7 +154,7 @@ public class ChessboardController {
         }
     }
 
-    public void handleBoardLocationClick(BorderPane source, BoardLocation location) {
+    private void addSelectedChessPiece(BoardLocation location) {
         if (!location.isFree()) {
             return;
         }
