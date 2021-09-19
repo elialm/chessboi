@@ -38,17 +38,17 @@
             <Label text="Chessboard size"/>
             <BorderPane id="controls-chessboard-size-text">
                 <left>
-                    <TextField fx:id="chessboardWidth" text="8" prefWidth="100"/>
+                    <TextField fx:id="chessboardWidth" onKeyPressed="#handleChessboardWidthOnKeyPressed" text="8" prefWidth="100"/>
                 </left>
                 <center>
                     <Label text="X"/>
                 </center>
                 <right>
-                    <TextField fx:id="chessboardHeight" text="8" prefWidth="100"/>
+                    <TextField fx:id="chessboardHeight" onKeyPressed="#handleChessboardHeightOnKeyPressed" text="8" prefWidth="100"/>
                 </right>
             </BorderPane>
             <AnchorPane id="controls-chessboard-size-button">
-                <Button text="Create with dimensions" onAction="#setupChessboard" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                <Button fx:id="chessboardUpdate" text="Create with dimensions" onAction="#setupChessboard" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
         </VBox>
     </left>
