@@ -61,8 +61,13 @@ public class Chessboard {
         this.ySize = ySize;
 
         boardLocations = new ArrayList<ArrayList<BoardLocation>>(xSize);
-        for (int row = 0; row < ySize; row++) {
-            boardLocations.add(new ArrayList<>(ySize));
+        for (int column = 0; column < xSize; column++) {
+            ArrayList<BoardLocation> rowArray = new ArrayList<>(ySize);
+            for (int row = 0; row < ySize; row++) {
+                rowArray.add(new BoardLocation(column, row, this));
+            }
+
+            boardLocations.add(rowArray);
         }
     }
 
