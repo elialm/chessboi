@@ -26,21 +26,27 @@ package org.efac.chess;
  */
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 
-import org.efac.chess.iter.BoardLocationIterable;
-import org.efac.chess.iter.ChessPieceIterable;
-import org.efac.chess.iter.FilledBoardLocationIterable;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 public class Chessboard {
     int xSize;
     int ySize;
-    BoardLocation[][] boardLocations;
+    ArrayList<ArrayList<BoardLocation>> boardLocations;
 
     public int getXSize() { return xSize; }
     public int getYSize() { return ySize; }
-    public BoardLocationIterable getLocations() { return new BoardLocationIterable(this); }
-    public FilledBoardLocationIterable getFilledLocations() { return new FilledBoardLocationIterable(getLocations()); }
-    public ChessPieceIterable getPieces() { return new ChessPieceIterable(getFilledLocations()); }
+    public ImmutableList<BoardLocation> getLocations() {
+        ArrayList<BoardLocation> locations = new ArrayList<>(xSize * ySize);
+        FluentIterable.from(boardLocations).forEach(column -> locations.addAll(column));
+
+        return new ImmutableList.Builder<BoardLocation>().addAll(locations).build();
+    }
+
+    public ImmutableList<BoardLocation> getFilledLocations() { return FluentIterable.from(getLocations()).filter(location -> !location.isFree()).toList(); }
+    public ImmutableList<ChessPiece> getPieces() { return FluentIterable.from(getFilledLocations()).transform(location -> location.getPiece()).toList(); }
 
     public Chessboard(int xSize, int ySize) {
         if (xSize < 0) {
@@ -54,21 +60,19 @@ public class Chessboard {
         this.xSize = xSize;
         this.ySize = ySize;
 
-        boardLocations = new BoardLocation[xSize][ySize];
-        for (int column = 0; column < xSize; column++) {
-            for (int row = 0; row < ySize; row++) {
-                boardLocations[column][row] = new BoardLocation(column, row, this);
-            }
+        boardLocations = new ArrayList<ArrayList<BoardLocation>>(xSize);
+        for (int row = 0; row < ySize; row++) {
+            boardLocations.add(new ArrayList<>(ySize));
         }
     }
 
     public BoardLocation getLocation(int xLocation, int yLocation) {
-        return isInBounds(xLocation, yLocation) ? boardLocations[xLocation][yLocation] : null;
+        return isInBounds(xLocation, yLocation) ? boardLocations.get(xLocation).get(yLocation) : null;
     }
 
     public BoardLocation getLocationSafe(int xLocation, int yLocation) {
         checkIfInBounds(xLocation, yLocation);
-        return boardLocations[xLocation][yLocation];
+        return boardLocations.get(xLocation).get(yLocation);
     }
 
     public boolean isLocationFree(int xLocation, int yLocation) {
@@ -77,12 +81,12 @@ public class Chessboard {
 
     public ChessPiece getPiece(int xLocation, int yLocation) {
         checkIfInBounds(xLocation, yLocation);
-        return boardLocations[xLocation][yLocation].getPiece();
+        return boardLocations.get(xLocation).get(yLocation).getPiece();
     }
 
     public void setPiece(int xLocation, int yLocation, ChessPiece piece) {
         checkIfInBounds(xLocation, yLocation);
-        boardLocations[xLocation][yLocation].setPiece(piece);
+        boardLocations.get(xLocation).get(yLocation).setPiece(piece);
     }
 
     public void checkIfInBounds(BoardLocation location) {
