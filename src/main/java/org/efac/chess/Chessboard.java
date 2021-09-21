@@ -76,7 +76,6 @@ public class Chessboard {
     }
 
     public BoardLocation getLocationSafe(int xLocation, int yLocation) {
-        checkIfInBounds(xLocation, yLocation);
         return boardLocations.get(xLocation).get(yLocation);
     }
 
@@ -85,25 +84,11 @@ public class Chessboard {
     }
 
     public ChessPiece getPiece(int xLocation, int yLocation) {
-        checkIfInBounds(xLocation, yLocation);
         return boardLocations.get(xLocation).get(yLocation).getPiece();
     }
 
     public void setPiece(int xLocation, int yLocation, ChessPiece piece) {
-        checkIfInBounds(xLocation, yLocation);
         boardLocations.get(xLocation).get(yLocation).setPiece(piece);
-    }
-
-    public void checkIfInBounds(BoardLocation location) {
-        checkIfInBounds(location.getXLocation(), location.getYLocation());
-    }
-
-    public void checkIfInBounds(int xLocation, int yLocation) {
-        if (!isInBounds(xLocation, yLocation)) {
-            throw new InvalidParameterException("Location is out of bounds, requested ("
-                    + xLocation + ", " + yLocation + ") from board of size " + xSize
-                    + " by " + ySize);
-        }
     }
 
     public boolean isInBounds(int xLocation, int yLocation) {
