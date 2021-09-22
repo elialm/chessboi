@@ -1,5 +1,7 @@
 package org.efac.chess;
 
+import java.security.InvalidParameterException;
+
 /**
  *  MIT License
 
@@ -35,5 +37,15 @@ public class Point {
     public Point(int xComponent, int yComponent) {
         this.xComponent = xComponent;
         this.yComponent = yComponent;
+    }
+
+    public static Point fromIndex(int index, int xSize, int ySize) {
+        final int numberOfPoints = xSize * ySize;
+        
+        if (index >= numberOfPoints) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        return new Point(index % xSize, index / xSize);
     }
 }

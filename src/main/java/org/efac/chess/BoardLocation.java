@@ -82,4 +82,16 @@ public class BoardLocation {
     public boolean isFree() {
         return chessPiece == null;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BoardLocation)) {
+            return false;
+        }
+
+        BoardLocation otherLocation = (BoardLocation)other;
+        return chessboard == otherLocation.getChessboard()
+            && xLocation == otherLocation.getXLocation()
+            && yLocation == otherLocation.getYLocation();
+    }
 }
