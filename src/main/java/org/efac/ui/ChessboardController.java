@@ -38,11 +38,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 
 import java.util.regex.Pattern;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
@@ -64,6 +66,7 @@ public class ChessboardController {
     private ChessboardBuilder chessboardBuilder;
     private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
     private ArrayList<Chessboard> dominationSolutions;
+    private int currentSolution;
 
     @FXML
     private TextField chessboardWidth;
@@ -83,11 +86,24 @@ public class ChessboardController {
     @FXML
     private ListView<ChessPiece> solverChessPieces;
 
+    @FXML
+    private Button solveDomination;
+
+    @FXML
+    private Button previousSolution;
+
+    @FXML
+    private Button nextSolution;
+
+    @FXML
+    private Label solutionIndex;
+
     public ChessboardController() {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
         chessboard = null;
         chessboardBuilder = null;
         dominationSolutions = null;
+        currentSolution = -1;
 
         chessboardLocationMouseEventHandler = new EventHandler<MouseEvent>() {
             @Override
@@ -153,6 +169,13 @@ public class ChessboardController {
     @FXML
     public void addChessPiece(ActionEvent event) {
         solverChessPieces.getItems().add(getSelectedChessPiece());
+        solveDomination.setDisable(false);
+    }
+
+    @FXML
+    public void clearChessPieces(ActionEvent event) {
+        solverChessPieces.getItems().clear();
+        solveDomination.setDisable(true);
     }
 
     @FXML
@@ -182,11 +205,42 @@ public class ChessboardController {
         alert.showAndWait();
 
         if (!dominationSolutions.isEmpty()) {
-            chessboard = dominationSolutions.get(0);
-            chessboardBuilder = new ChessboardBuilder(chessboard, chessboardPane, chessboardLocationMouseEventHandler);
-            chessboardBuilder.setupChessboard();
-            chessboardBuilder.updateChessboard();
+            currentSolution = 0;
+            updateSolution();
+
+            nextSolution.setDisable(dominationSolutions.size() <= 1);
         }
+    }
+
+    @FXML
+    public void displayPreviousSolution(ActionEvent event) {
+        currentSolution--;
+        updateSolution();
+
+        nextSolution.setDisable(false);
+        if (currentSolution == 0) {
+            previousSolution.setDisable(true);
+        }
+    }
+
+    @FXML
+    public void displayNextSolution(ActionEvent event) {
+        currentSolution++;
+        updateSolution();
+
+        previousSolution.setDisable(false);
+        if (currentSolution == dominationSolutions.size() - 1) {
+            nextSolution.setDisable(true);
+        }
+    }
+
+    private void updateSolution() {
+        chessboard = dominationSolutions.get(currentSolution);
+        chessboardBuilder = new ChessboardBuilder(chessboard, chessboardPane, chessboardLocationMouseEventHandler);
+        chessboardBuilder.setupChessboard();
+        chessboardBuilder.updateChessboard();
+
+        solutionIndex.setText("Showing solution " + (currentSolution + 1) + " out of " + dominationSolutions.size());
     }
 
     private Optional<Point> getPreferredBoardSize() {

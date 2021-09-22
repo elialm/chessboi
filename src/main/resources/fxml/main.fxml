@@ -68,18 +68,22 @@
             <AnchorPane id="controls-chessboard-add-piece">
                 <Button text="Add piece" onAction="#addChessPiece" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
+            <AnchorPane id="controls-chessboard-clear-pieces">
+                <Button text="Clear pieces" onAction="#clearChessPieces" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+            </AnchorPane>
             <BorderPane id="controls-chessboard-solver-pieces">
                 <center>
                     <ListView fx:id="solverChessPieces" maxHeight="200"/>
                 </center>
             </BorderPane>
             <AnchorPane id="controls-chessboard-solve">
-                <Button text="Solve domination" onAction="#solveDominationProblem" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                <Button fx:id="solveDomination" text="Solve domination" onAction="#solveDominationProblem" disable="true" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
             <AnchorPane id="controls-chessboard-solution-arrows">
-                <Button text="Previous" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="150.0"/>
-                <Button text="Next" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0"/>
+                <Button fx:id="previousSolution" text="Previous" disable="true" onAction="#displayPreviousSolution" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="150.0"/>
+                <Button fx:id="nextSolution" text="Next" disable="true" onAction="#displayNextSolution" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
+            <Label fx:id="solutionIndex" text="No results"/>
         </VBox>
     </left>
     <center>

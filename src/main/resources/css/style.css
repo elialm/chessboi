@@ -33,6 +33,7 @@
 #controls-chessboard-chess-piece, 
 #controls-chessboard-solver-pieces,
 #controls-chessboard-add-piece,
+#controls-chessboard-clear-pieces,
 #controls-chessboard-solve,
 #controls-chessboard-solution-arrows {
     -fx-padding: 0 20 10 20;
