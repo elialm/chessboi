@@ -26,9 +26,6 @@ package org.efac.chess;
  */
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.stream.IntStream;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.google.common.base.Function;
@@ -45,13 +42,37 @@ public class DominationSolver {
     private final int boardWidth;
     private final int boardHeight;
     private final ArrayList<Chessboard> chessboards;
+    private final ArrayList<ChessPiece> pieces;
     private final int chessboardCombinations;
+    private boolean ranSolveMethod;
 
     public DominationSolver(int boardWidth, int boardHeight, ArrayList<ChessPiece> pieces) {
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
         chessboardCombinations = calculateNumberOfBoardCombinations(pieces);
         chessboards = new ArrayList<>(chessboardCombinations);
+        this.pieces = new ArrayList<>(pieces);
+        ranSolveMethod = false;
+    }
+
+    public ArrayList<Chessboard> solve() {
+        if (ranSolveMethod) {
+            return chessboards;
+        }
+
+        ArrayList<ImmutableList<ChessPiece>> pieceCombinations = generatePieceCombinations(pieces);
+        for (ImmutableList<Point> boardLocationCombination : generateBoardLocationCombinations(pieces.size())) {
+            for (ImmutableList<ChessPiece> pieceCombination : pieceCombinations) {
+                Chessboard chessboard = createChessboard(PyIterators.zip(boardLocationCombination, pieceCombination));
+
+                if (chessboard.isDominated()) {
+                    chessboards.add(chessboard);
+                }
+            }
+        }
+
+        ranSolveMethod = true;
+        return chessboards;
     }
 
     private int calculateNumberOfBoardCombinations(ArrayList<ChessPiece> pieces) {
