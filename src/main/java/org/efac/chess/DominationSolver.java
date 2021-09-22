@@ -1,5 +1,7 @@
 package org.efac.chess;
 
+import java.math.BigInteger;
+
 /**
  *  MIT License
 
@@ -47,11 +49,13 @@ public class DominationSolver {
     private final int chessboardCombinations;
     private boolean ranSolveMethod;
 
+    public int getNumberOfChessboardCombinations() { return chessboardCombinations; }
+
     public DominationSolver(int boardWidth, int boardHeight, List<ChessPiece> pieces) {
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
         chessboardCombinations = calculateNumberOfBoardCombinations(pieces);
-        chessboards = new ArrayList<>(chessboardCombinations);
+        chessboards = new ArrayList<>();
         this.pieces = new ArrayList<>(pieces);
         ranSolveMethod = false;
     }
@@ -81,7 +85,7 @@ public class DominationSolver {
         final int numberOfQueens = countPiecesOfType(pieces, ChessPiece.Type.QUEEN);
         final int numberOfBishops = countPiecesOfType(pieces, ChessPiece.Type.BISHOP);
 
-        return factorial(cellCount) / (factorial(numberOfQueens) * factorial(numberOfBishops) * factorial(cellCount - numberOfQueens - numberOfBishops));
+        return factorial(cellCount).divide(factorial(numberOfQueens).multiply(factorial(numberOfBishops)).multiply(factorial(cellCount - numberOfQueens - numberOfBishops))).intValue();
     }
 
     private ArrayList<ImmutableList<Point>> generateBoardLocationCombinations(int numberOfPieces) {
@@ -90,7 +94,7 @@ public class DominationSolver {
         }
         
         final int cellCount = boardWidth * boardHeight;
-        final int numberOfCombinations = factorial(cellCount) / (factorial(numberOfPieces) * factorial(cellCount - numberOfPieces));
+        final int numberOfCombinations = factorial(cellCount).divide(factorial(numberOfPieces).multiply(factorial(cellCount - numberOfPieces))).intValue();
         final ArrayList<ImmutableList<Point>> boardLocations = new ArrayList<>(numberOfCombinations);
 
         final ArrayList<Integer> currentCombination = Lists.newArrayList(PyIterators.range(0, numberOfPieces));
@@ -137,7 +141,7 @@ public class DominationSolver {
                             );
                         });
 
-        return factorial(pieces.size()) / PyIterators.reduce(countPerPiece, (acc, current) -> acc * factorial(current), 1);
+        return factorial(pieces.size()).divide(PyIterators.reduce(countPerPiece, (acc, current) -> acc.multiply(factorial(current)), new BigInteger("1"))).intValue();
     }
 
     private ArrayList<ImmutableList<ChessPiece>> generatePieceCombinations(ArrayList<ChessPiece> pieces) {
@@ -192,19 +196,19 @@ public class DominationSolver {
         return chessboard;
     }
 
-    private static int factorial(int n) {
+    private static BigInteger factorial(int n) {
         if (n < 0) {
-            return 0;
+            return new BigInteger("0");
         }
 
-        final Function<Integer, Integer> inner_factorial = new Function<Integer, Integer>() {
+        final Function<Integer, BigInteger> inner_factorial = new Function<Integer, BigInteger>() {
             @Override
-            public Integer apply(Integer m) {
-                return n == 1 ? 1 : m * apply(m);
+            public BigInteger apply(Integer m) {
+                return m == 1 ? new BigInteger("1") : apply(m - 1).multiply(new BigInteger(m.toString()));
             }
         };
         
-        return n == 1 ? 1 : n * inner_factorial.apply(n);
+        return inner_factorial.apply(n);
     }
 
     private static int countPiecesOfType(List<ChessPiece> pieces, ChessPiece.Type type) {
