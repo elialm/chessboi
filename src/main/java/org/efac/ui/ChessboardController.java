@@ -43,16 +43,19 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
-import java.util.Arrays;
 
 import org.efac.chess.Chessboard;
 import org.efac.chess.DominationSolver;
 import org.efac.chess.BoardLocation;
 import org.efac.chess.ChessPiece;
 import org.efac.chess.ChessPiece.Color;
+import org.efac.chess.Point;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
+
+import com.google.common.base.Optional;
 
 public class ChessboardController {
     
@@ -60,6 +63,7 @@ public class ChessboardController {
     private Chessboard chessboard;
     private ChessboardBuilder chessboardBuilder;
     private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
+    private ArrayList<Chessboard> dominationSolutions;
 
     @FXML
     private TextField chessboardWidth;
@@ -83,6 +87,7 @@ public class ChessboardController {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
         chessboard = null;
         chessboardBuilder = null;
+        dominationSolutions = null;
 
         chessboardLocationMouseEventHandler = new EventHandler<MouseEvent>() {
             @Override
@@ -110,27 +115,13 @@ public class ChessboardController {
 
     @FXML
     public void setupChessboard(ActionEvent event) {
-        int chessboardWidth;
-        int chessboardHeight;
-
-        try {
-            chessboardWidth = Integer.parseInt(this.chessboardWidth.getText());
-            chessboardHeight = Integer.parseInt(this.chessboardHeight.getText());
-        }
-        catch (NumberFormatException ex) {
-            handleInvalidIntegerInput(ex);
+        Optional<Point> boardDimensions = getPreferredBoardSize();
+        if (!boardDimensions.isPresent()) {
             return;
         }
 
-        if (chessboardWidth == 0 || chessboardHeight == 0) {
-            handleZeroIntegerInput();
-            return;
-        }
-
-        if (chessboardWidth < 0 || chessboardHeight < 0) {
-            handleNegativeIntegerInput();
-            return;
-        }
+        int chessboardWidth = boardDimensions.get().getXComponent();
+        int chessboardHeight = boardDimensions.get().getYComponent();
 
         chessboard = new Chessboard(chessboardWidth, chessboardHeight);
         // chessboard.getLocation(chessboardWidth / 2, chessboardHeight / 2).setPiece(new Bishop(Color.WHITE));
@@ -166,7 +157,62 @@ public class ChessboardController {
 
     @FXML
     public void solveDominationProblem(ActionEvent event) {
+        Optional<Point> boardDimensions = getPreferredBoardSize();
+        if (!boardDimensions.isPresent()) {
+            return;
+        }
+
+        if (solverChessPieces.getItems().isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setHeaderText("Chess pieces missing");
+            alert.setContentText("No chess pieces have been added to the board, please add at least one");
+            alert.showAndWait();
+            return;
+        }
+
+        int chessboardWidth = boardDimensions.get().getXComponent();
+        int chessboardHeight = boardDimensions.get().getYComponent();
         
+        DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
+        dominationSolutions = solver.solve();
+    
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setHeaderText("Solution result");
+        alert.setContentText(dominationSolutions.size() + " solutions were found");
+        alert.showAndWait();
+
+        if (!dominationSolutions.isEmpty()) {
+            chessboard = dominationSolutions.get(0);
+            chessboardBuilder = new ChessboardBuilder(chessboard, chessboardPane, chessboardLocationMouseEventHandler);
+            chessboardBuilder.setupChessboard();
+            chessboardBuilder.updateChessboard();
+        }
+    }
+
+    private Optional<Point> getPreferredBoardSize() {
+        int chessboardWidth;
+        int chessboardHeight;
+
+        try {
+            chessboardWidth = Integer.parseInt(this.chessboardWidth.getText());
+            chessboardHeight = Integer.parseInt(this.chessboardHeight.getText());
+        }
+        catch (NumberFormatException ex) {
+            handleInvalidIntegerInput(ex);
+            return Optional.absent();
+        }
+
+        if (chessboardWidth == 0 || chessboardHeight == 0) {
+            handleZeroIntegerInput();
+            return Optional.absent();
+        }
+
+        if (chessboardWidth < 0 || chessboardHeight < 0) {
+            handleNegativeIntegerInput();
+            return Optional.absent();
+        }
+
+        return Optional.of(new Point(chessboardWidth, chessboardHeight));
     }
 
     private ChessPiece getSelectedChessPiece() {

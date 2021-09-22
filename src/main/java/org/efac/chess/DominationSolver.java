@@ -197,8 +197,8 @@ public class DominationSolver {
     }
 
     private static BigInteger factorial(int n) {
-        if (n < 0) {
-            return new BigInteger("0");
+        if (n == 0) {
+            return new BigInteger("1");
         }
 
         final Function<Integer, BigInteger> inner_factorial = new Function<Integer, BigInteger>() {
