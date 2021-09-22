@@ -72,10 +72,12 @@ public class Chessboard {
         }
     }
 
+    public BoardLocation getLocation(Point point) { return getLocation(point.getXComponent(), point.getYComponent()); }
     public BoardLocation getLocation(int xLocation, int yLocation) {
         return isInBounds(xLocation, yLocation) ? boardLocations.get(xLocation).get(yLocation) : null;
     }
 
+    public BoardLocation getLocationSafe(Point point) { return getLocationSafe(point.getXComponent(), point.getYComponent()); }
     public BoardLocation getLocationSafe(int xLocation, int yLocation) {
         return boardLocations.get(xLocation).get(yLocation);
     }

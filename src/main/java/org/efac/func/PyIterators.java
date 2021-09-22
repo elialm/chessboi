@@ -1,8 +1,12 @@
 package org.efac.func;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Collections;
 
 import com.google.common.collect.Lists;
@@ -36,5 +40,13 @@ public class PyIterators {
                 return collected.iterator();
             }
         };
+    }
+
+    public static<K, V> Map<K, V> zip(List<K> keys, List<V> values) {
+        if (keys.size() != values.size()) {
+            throw new InvalidParameterException("keys and values lists do not have the same size");
+        }
+
+        return IntStream.range(0, keys.size()).boxed().collect(Collectors.toMap(keys::get,values::get));
     }
 }

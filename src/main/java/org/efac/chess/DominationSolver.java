@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.IntStream;
 import java.util.Iterator;
+import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
@@ -156,6 +157,17 @@ public class DominationSolver {
 
         inner_generator.apply(new ArrayList<>(), pieces);
         return pieceCombinations;
+    }
+
+    private Chessboard createChessboard(Map<Point, ChessPiece> boardState) {
+        Chessboard chessboard = new Chessboard(boardWidth, boardHeight);
+    
+        for (Map.Entry<Point, ChessPiece> entry : boardState.entrySet()) {
+            BoardLocation location = chessboard.getLocation(entry.getKey());
+            location.setPiece(entry.getValue());
+        }
+
+        return chessboard;
     }
 
     private static int factorial(int n) {
