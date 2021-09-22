@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 public class Chessboard {
     int xSize;
@@ -93,5 +94,22 @@ public class Chessboard {
 
     public boolean isInBounds(int xLocation, int yLocation) {
         return xLocation >= 0 && yLocation >= 0 && xLocation < xSize && yLocation < ySize;
+    }
+
+    public ImmutableSet<BoardLocation> getPossibleMoves() {
+        ArrayList<BoardLocation> possibleMoves = new ArrayList<>();
+        for (BoardLocation location : getLocations()) {
+            ChessPiece piece = location.getPiece();
+
+            if (piece != null) {
+                possibleMoves.addAll(piece.getPossibleMoves(location));
+            }
+        }
+
+        return ImmutableSet.copyOf(possibleMoves);
+    }
+
+    public boolean isDominated() {
+        return getPossibleMoves().size() + getPieces().size() == xSize * ySize;
     }
 }
