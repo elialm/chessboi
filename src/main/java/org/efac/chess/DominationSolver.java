@@ -29,12 +29,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.IntStream;
 import java.util.Iterator;
+import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableSet;
+
+import org.efac.func.ReduceFunction;
 
 public class DominationSolver {
     private final int boardWidth;
@@ -64,10 +68,10 @@ public class DominationSolver {
         
         final int cellCount = boardWidth * boardHeight;
         final int numberOfCombinations = factorial(cellCount) / (factorial(numberOfPieces) * factorial(cellCount - numberOfPieces));
-        ArrayList<ImmutableList<Point>> boardLocations = new ArrayList<>(numberOfCombinations);
+        final ArrayList<ImmutableList<Point>> boardLocations = new ArrayList<>(numberOfCombinations);
 
-        ArrayList<Integer> currentCombination = Lists.newArrayList(range(0, numberOfPieces));
-        ArrayList<Integer> lastCombination = Lists.newArrayList(range(cellCount - numberOfPieces, cellCount));
+        final ArrayList<Integer> currentCombination = Lists.newArrayList(range(0, numberOfPieces));
+        final ArrayList<Integer> lastCombination = Lists.newArrayList(range(cellCount - numberOfPieces, cellCount));
 
         while (!lastCombination.containsAll(currentCombination)) {
             boardLocations.add(
@@ -95,6 +99,72 @@ public class DominationSolver {
         }
 
         return boardLocations;
+    }
+
+    private int calculateNumberOfChessPieceCombinations(ArrayList<ChessPiece> pieces) {
+        ArrayList<Integer> countPerPiece = new ArrayList<>(ChessPiece.Type.values().length);
+        FluentIterable.from(pieces)
+                        .transform(piece -> piece.getType())
+                        .toSet()
+                        .forEach(type -> {
+                            countPerPiece.add(
+                                FluentIterable.from(pieces)
+                                                .filter(piece -> piece.getType() == type)
+                                                .size()
+                            );
+                        });
+
+        return factorial(pieces.size()) / reduce(countPerPiece, (acc, current) -> acc * factorial(current), 1);
+    }
+
+    private ArrayList<ImmutableList<ChessPiece>> generatePieceCombinations(ArrayList<ChessPiece> pieces) {
+        if (pieces.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        final ArrayList<ImmutableList<ChessPiece>> pieceCombinations = new ArrayList<>(calculateNumberOfChessPieceCombinations(pieces));
+
+        final ReduceFunction<ArrayList<ChessPiece>, ArrayList<ChessPiece>> inner_generator = new ReduceFunction<ArrayList<ChessPiece>,ArrayList<ChessPiece>>(){
+            public ArrayList<ChessPiece> apply(ArrayList<ChessPiece> current, ArrayList<ChessPiece> left) {
+                ImmutableSet<ChessPiece.Type> chessPieceTypes = FluentIterable.from(left)
+                                                                                .transform(piece -> piece.getType())
+                                                                                .toSet();
+
+                if (chessPieceTypes.size() == 1) {
+                    current.addAll(left);
+                    pieceCombinations.add(ImmutableList.copyOf(current));
+                } else if (chessPieceTypes.size() > 1) {
+                    for (ChessPiece.Type type : chessPieceTypes) {
+                        ChessPiece pieceOfType = FluentIterable.from(left)
+                                                                .filter(piece -> piece.getType() == type)
+                                                                .first()
+                                                                .get();
+
+                        ArrayList<ChessPiece> copyOfLeft = Lists.newArrayList(left);
+                        copyOfLeft.remove(pieceOfType);
+
+                        ArrayList<ChessPiece> copyOfCurrent = Lists.newArrayList(current);
+                        copyOfCurrent.add(pieceOfType);
+
+                        apply(copyOfCurrent, copyOfLeft);
+                    }
+                }
+
+                return current;
+            }
+        };
+
+        inner_generator.apply(new ArrayList<>(), pieces);
+        return pieceCombinations;
+    }
+
+    private static<F, T> T reduce(Iterable<F> iterable, ReduceFunction<F, T> func, T initial) {
+        T current = initial;
+        for (F f : iterable) {
+            current = func.apply(current, f);
+        }
+
+        return current;
     }
 
     private static Iterable<Integer> range(int startInclusive, int endExclusive) {
