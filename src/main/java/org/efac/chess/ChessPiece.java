@@ -27,6 +27,8 @@ package org.efac.chess;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.FluentIterable;
+
 public abstract class ChessPiece implements Comparable<ChessPiece> {
     public enum Type {
         PAWN(1),
@@ -70,6 +72,11 @@ public abstract class ChessPiece implements Comparable<ChessPiece> {
     }
 
     public abstract ArrayList<BoardLocation> getPossibleMoves(BoardLocation location);
+
+    @Override
+    public String toString() {
+        return type.toString().substring(0, 1) + type.toString().substring(1).toLowerCase();
+    }
 
     protected ArrayList<BoardLocation> getPossibleMovesInLine(BoardLocation location, Point[] relativeDirections) {
         ArrayList<BoardLocation> possibleMoves = new ArrayList<BoardLocation>();

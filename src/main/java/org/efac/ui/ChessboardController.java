@@ -38,19 +38,21 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.Arrays;
 
 import org.efac.chess.Chessboard;
+import org.efac.chess.DominationSolver;
 import org.efac.chess.BoardLocation;
 import org.efac.chess.ChessPiece;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
-
-import java.util.regex.Matcher;
 
 public class ChessboardController {
     
@@ -73,6 +75,9 @@ public class ChessboardController {
 
     @FXML
     private ComboBox<String> chessPieceType;
+
+    @FXML
+    private ListView<ChessPiece> solverChessPieces;
 
     public ChessboardController() {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
@@ -154,19 +159,32 @@ public class ChessboardController {
         }
     }
 
+    @FXML
+    public void addChessPiece(ActionEvent event) {
+        solverChessPieces.getItems().add(getSelectedChessPiece());
+    }
+
+    @FXML
+    public void solveDominationProblem(ActionEvent event) {
+        
+    }
+
+    private ChessPiece getSelectedChessPiece() {
+        switch (chessPieceType.getSelectionModel().getSelectedItem()) {
+            case "Bishop": return new Bishop(Color.WHITE);
+            case "Queen": return new Queen(Color.WHITE);
+            
+            // Code should never come here
+            default: return null;
+        }
+    }
+
     private void addSelectedChessPiece(BoardLocation location) {
         if (!location.isFree()) {
             return;
         }
-        
-        ChessPiece piece = null;
-        
-        switch (chessPieceType.getSelectionModel().getSelectedItem()) {
-            case "Bishop": piece = new Bishop(Color.WHITE); break;
-            case "Queen": piece = new Queen(Color.WHITE); break;
-        }
 
-        location.setPiece(piece);
+        location.setPiece(getSelectedChessPiece());
         chessboardBuilder.updateChessboard();
     }
 

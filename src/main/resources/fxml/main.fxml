@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.collections.FXCollections?>
 
 <!--
@@ -63,6 +64,21 @@
                         </FXCollections>
                     </items>
                 </ComboBox>
+            </AnchorPane>
+            <AnchorPane id="controls-chessboard-add-piece">
+                <Button text="Add piece" onAction="#addChessPiece" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+            </AnchorPane>
+            <BorderPane id="controls-chessboard-solver-pieces">
+                <center>
+                    <ListView fx:id="solverChessPieces" maxHeight="200"/>
+                </center>
+            </BorderPane>
+            <AnchorPane id="controls-chessboard-solve">
+                <Button text="Solve domination" onAction="#solveDominationProblem" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+            </AnchorPane>
+            <AnchorPane id="controls-chessboard-solution-arrows">
+                <Button text="Previous" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="150.0"/>
+                <Button text="Next" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
         </VBox>
     </left>
