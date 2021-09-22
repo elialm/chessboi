@@ -26,6 +26,7 @@ package org.efac.chess;
  */
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Function;
@@ -46,7 +47,7 @@ public class DominationSolver {
     private final int chessboardCombinations;
     private boolean ranSolveMethod;
 
-    public DominationSolver(int boardWidth, int boardHeight, ArrayList<ChessPiece> pieces) {
+    public DominationSolver(int boardWidth, int boardHeight, List<ChessPiece> pieces) {
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
         chessboardCombinations = calculateNumberOfBoardCombinations(pieces);
@@ -75,7 +76,7 @@ public class DominationSolver {
         return chessboards;
     }
 
-    private int calculateNumberOfBoardCombinations(ArrayList<ChessPiece> pieces) {
+    private int calculateNumberOfBoardCombinations(List<ChessPiece> pieces) {
         final int cellCount = boardWidth * boardHeight;
         final int numberOfQueens = countPiecesOfType(pieces, ChessPiece.Type.QUEEN);
         final int numberOfBishops = countPiecesOfType(pieces, ChessPiece.Type.BISHOP);
@@ -206,9 +207,7 @@ public class DominationSolver {
         return n == 1 ? 1 : n * inner_factorial.apply(n);
     }
 
-    private static int countPiecesOfType(ArrayList<ChessPiece> pieces, ChessPiece.Type type) {
+    private static int countPiecesOfType(List<ChessPiece> pieces, ChessPiece.Type type) {
         return Iterators.size(FluentIterable.from(pieces).filter(piece -> piece.getType() == type).iterator());
     }
-
-    
 }

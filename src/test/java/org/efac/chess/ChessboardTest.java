@@ -6,6 +6,7 @@ import java.util.Arrays;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
