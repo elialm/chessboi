@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.IntStream;
 import java.util.Iterator;
-import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
@@ -39,6 +38,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableSet;
 
 import org.efac.func.ReduceFunction;
+import org.efac.func.PyIterators;
 
 public class DominationSolver {
     private final int boardWidth;
@@ -70,8 +70,8 @@ public class DominationSolver {
         final int numberOfCombinations = factorial(cellCount) / (factorial(numberOfPieces) * factorial(cellCount - numberOfPieces));
         final ArrayList<ImmutableList<Point>> boardLocations = new ArrayList<>(numberOfCombinations);
 
-        final ArrayList<Integer> currentCombination = Lists.newArrayList(range(0, numberOfPieces));
-        final ArrayList<Integer> lastCombination = Lists.newArrayList(range(cellCount - numberOfPieces, cellCount));
+        final ArrayList<Integer> currentCombination = Lists.newArrayList(PyIterators.range(0, numberOfPieces));
+        final ArrayList<Integer> lastCombination = Lists.newArrayList(PyIterators.range(cellCount - numberOfPieces, cellCount));
 
         while (!lastCombination.containsAll(currentCombination)) {
             boardLocations.add(
@@ -80,15 +80,15 @@ public class DominationSolver {
                                 .toList()
             );
             
-            for (int i : reversed(range(0, numberOfPieces))) {
+            for (int i : PyIterators.reversed(PyIterators.range(0, numberOfPieces))) {
                 if (currentCombination.get(i) < lastCombination.get(i)) {
-                    for (int j : range(i, numberOfPieces)) {
+                    for (int j : PyIterators.range(i, numberOfPieces)) {
                         currentCombination.set(j, currentCombination.get(j) + 1);
                     }
 
                     break;
                 } else if (currentCombination.get(i) == lastCombination.get(i)) {
-                    for (int j : reversed(range(0, i))) {
+                    for (int j : PyIterators.reversed(PyIterators.range(0, i))) {
                         if (currentCombination.get(j) != lastCombination.get(j)) {
                             currentCombination.set(i, currentCombination.get(j) + (i - j));
                             break;
@@ -114,7 +114,7 @@ public class DominationSolver {
                             );
                         });
 
-        return factorial(pieces.size()) / reduce(countPerPiece, (acc, current) -> acc * factorial(current), 1);
+        return factorial(pieces.size()) / PyIterators.reduce(countPerPiece, (acc, current) -> acc * factorial(current), 1);
     }
 
     private ArrayList<ImmutableList<ChessPiece>> generatePieceCombinations(ArrayList<ChessPiece> pieces) {
@@ -156,36 +156,6 @@ public class DominationSolver {
 
         inner_generator.apply(new ArrayList<>(), pieces);
         return pieceCombinations;
-    }
-
-    private static<F, T> T reduce(Iterable<F> iterable, ReduceFunction<F, T> func, T initial) {
-        T current = initial;
-        for (F f : iterable) {
-            current = func.apply(current, f);
-        }
-
-        return current;
-    }
-
-    private static Iterable<Integer> range(int startInclusive, int endExclusive) {
-        return new Iterable<Integer>() {
-            @Override
-            public Iterator<Integer> iterator() {
-                return IntStream.range(startInclusive, endExclusive).iterator();
-            }
-        };
-    }
-
-    private static<T> Iterable<T> reversed(Iterable<T> iterable) {
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                ArrayList<T> collected = Lists.newArrayList(iterable);
-                Collections.reverse(collected);
-
-                return collected.iterator();
-            }
-        };
     }
 
     private static int factorial(int n) {
