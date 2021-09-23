@@ -212,17 +212,6 @@ public class DominationSolver {
         return pieceCombinations;
     }
 
-    private Chessboard createChessboard(Map<Point, ChessPiece> boardState) {
-        Chessboard chessboard = new Chessboard(boardWidth, boardHeight);
-    
-        for (Map.Entry<Point, ChessPiece> entry : boardState.entrySet()) {
-            BoardLocation location = chessboard.getLocation(entry.getKey());
-            location.setPiece(entry.getValue());
-        }
-
-        return chessboard;
-    }
-
     private static BigInteger factorial(int n) {
         if (n == 0) {
             return new BigInteger("1");
