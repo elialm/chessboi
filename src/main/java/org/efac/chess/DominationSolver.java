@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 import org.efac.func.ReduceFunction;
 import org.efac.chess.iter.DominationSolutionIterator;
@@ -66,9 +67,44 @@ public class DominationSolver {
         return new Iterable<Chessboard>(){
             @Override
             public Iterator<Chessboard> iterator() {
-                return new DominationSolutionIterator(boardWidth, boardHeight, generatePieceCombinations(pieces), generateBoardLocationCombinations(pieces.size()));
+                return Iterables.concat(getSolutionIterables()).iterator();
             }
         };
+    }
+
+    public Iterable<Iterable<Chessboard>> getSolutionIterables() {
+        ArrayList<ImmutableList<ChessPiece>> pieceCombinations = generatePieceCombinations(pieces);
+        ArrayList<ImmutableList<Point>> boardLocationCombinations = generateBoardLocationCombinations(pieces.size());
+        ArrayList<Iterable<Chessboard>> iterables = new ArrayList<>();
+
+        innerGetSolutionsIterable(iterables, pieceCombinations, boardLocationCombinations);
+
+        return iterables;
+    }
+
+    // This is an inner method, only to be called by getSolutionIterables()
+    private void innerGetSolutionsIterable(List<Iterable<Chessboard>> iterables, List<ImmutableList<ChessPiece>> pieceCombinations, List<ImmutableList<Point>> boardLocationCombinations) {
+        try {
+            // Try to multiply number of piece and location combinations
+            //      If it is or exceeds Integer.MAX_VALUE, then the rest of the
+            //      logic will not work, so we split the location combinations
+            //      into 2 separate iterators.
+            int numberOfBoardCombinations = Math.multiplyExact(pieceCombinations.size(), boardLocationCombinations.size());
+            if (numberOfBoardCombinations == Integer.MAX_VALUE) {
+                throw new ArithmeticException();
+            }
+
+            iterables.add(new Iterable<Chessboard>() {
+                @Override
+                public Iterator<Chessboard> iterator() {
+                    return new DominationSolutionIterator(boardWidth, boardHeight, generatePieceCombinations(pieces), generateBoardLocationCombinations(pieces.size()));
+                }
+            });
+        } catch (ArithmeticException e) {
+            int halfBoardLocationCombinationsIndex = boardLocationCombinations.size() / 2;
+            innerGetSolutionsIterable(iterables, pieceCombinations, boardLocationCombinations.subList(0, halfBoardLocationCombinationsIndex));
+            innerGetSolutionsIterable(iterables, pieceCombinations, boardLocationCombinations.subList(halfBoardLocationCombinationsIndex, boardLocationCombinations.size()));
+        }
     }
 
     private int calculateNumberOfBoardCombinations(List<ChessPiece> pieces) {
