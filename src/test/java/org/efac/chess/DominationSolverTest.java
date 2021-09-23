@@ -21,7 +21,7 @@ public class DominationSolverTest {
         };
         DominationSolver solver = new DominationSolver(5, 5, Arrays.asList(pieces));
 
-        ArrayList<Chessboard> solutions = solver.solve();
+        // ArrayList<Chessboard> solutions = solver.solve();
 
         return;
     }

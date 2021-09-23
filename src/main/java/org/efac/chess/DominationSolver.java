@@ -28,6 +28,7 @@ import java.math.BigInteger;
  */
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,15 +40,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableSet;
 
 import org.efac.func.ReduceFunction;
+import org.efac.chess.iter.DominationSolutionIterator;
 import org.efac.func.PyIterators;
 
 public class DominationSolver {
     private final int boardWidth;
     private final int boardHeight;
-    private final ArrayList<Chessboard> chessboards;
     private final ArrayList<ChessPiece> pieces;
     private final int chessboardCombinations;
-    private boolean ranSolveMethod;
+    private Chessboard solutionChessboard;
+    private boolean ranSolver;
 
     public int getNumberOfChessboardCombinations() { return chessboardCombinations; }
 
@@ -55,29 +57,18 @@ public class DominationSolver {
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
         chessboardCombinations = calculateNumberOfBoardCombinations(pieces);
-        chessboards = new ArrayList<>();
         this.pieces = new ArrayList<>(pieces);
-        ranSolveMethod = false;
+        solutionChessboard = null;
+        ranSolver = false;
     }
 
-    public ArrayList<Chessboard> solve() {
-        if (ranSolveMethod) {
-            return chessboards;
-        }
-
-        ArrayList<ImmutableList<ChessPiece>> pieceCombinations = generatePieceCombinations(pieces);
-        for (ImmutableList<Point> boardLocationCombination : generateBoardLocationCombinations(pieces.size())) {
-            for (ImmutableList<ChessPiece> pieceCombination : pieceCombinations) {
-                Chessboard chessboard = createChessboard(PyIterators.zip(boardLocationCombination, pieceCombination));
-
-                if (chessboard.isDominated()) {
-                    chessboards.add(chessboard);
-                }
+    public Iterable<Chessboard> getSolutions() {
+        return new Iterable<Chessboard>(){
+            @Override
+            public Iterator<Chessboard> iterator() {
+                return new DominationSolutionIterator(boardWidth, boardHeight, generatePieceCombinations(pieces), generateBoardLocationCombinations(pieces.size()));
             }
-        }
-
-        ranSolveMethod = true;
-        return chessboards;
+        };
     }
 
     private int calculateNumberOfBoardCombinations(List<ChessPiece> pieces) {

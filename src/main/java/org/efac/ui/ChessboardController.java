@@ -47,12 +47,14 @@ import java.util.regex.Pattern;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
+import java.util.Iterator;
 
 import org.efac.chess.Chessboard;
 import org.efac.chess.DominationSolver;
 import org.efac.chess.BoardLocation;
 import org.efac.chess.ChessPiece;
 import org.efac.chess.ChessPiece.Color;
+import org.efac.chess.iter.DominationSolutionIterator;
 import org.efac.chess.Point;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
@@ -65,8 +67,6 @@ public class ChessboardController {
     private Chessboard chessboard;
     private ChessboardBuilder chessboardBuilder;
     private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
-    private ArrayList<Chessboard> dominationSolutions;
-    private int currentSolution;
 
     @FXML
     private TextField chessboardWidth;
@@ -102,8 +102,6 @@ public class ChessboardController {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
         chessboard = null;
         chessboardBuilder = null;
-        dominationSolutions = null;
-        currentSolution = -1;
 
         chessboardLocationMouseEventHandler = new EventHandler<MouseEvent>() {
             @Override
@@ -197,50 +195,49 @@ public class ChessboardController {
         int chessboardHeight = boardDimensions.get().getYComponent();
         
         DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
-        dominationSolutions = solver.solve();
-    
+        Iterator<Chessboard> solutions = solver.getSolutions().iterator();
+
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setHeaderText("Solution result");
-        alert.setContentText(dominationSolutions.size() + " solutions were found");
-        alert.showAndWait();
 
-        if (!dominationSolutions.isEmpty()) {
-            currentSolution = 0;
-            updateSolution();
+        if (solutions.hasNext()) {
+            alert.setContentText("Found a solution");
+            alert.showAndWait();
 
-            nextSolution.setDisable(dominationSolutions.size() <= 1);
+            chessboard = solutions.next();
+            updateChessboard();
+        } else {
+            alert.setContentText("Found no solutions");
+            alert.showAndWait();
         }
     }
 
     @FXML
     public void displayPreviousSolution(ActionEvent event) {
-        currentSolution--;
-        updateSolution();
+        // currentSolution--;
+        // updateSolution();
 
-        nextSolution.setDisable(false);
-        if (currentSolution == 0) {
-            previousSolution.setDisable(true);
-        }
+        // nextSolution.setDisable(false);
+        // if (currentSolution == 0) {
+        //     previousSolution.setDisable(true);
+        // }
     }
 
     @FXML
     public void displayNextSolution(ActionEvent event) {
-        currentSolution++;
-        updateSolution();
+        // currentSolution++;
+        // updateSolution();
 
-        previousSolution.setDisable(false);
-        if (currentSolution == dominationSolutions.size() - 1) {
-            nextSolution.setDisable(true);
-        }
+        // previousSolution.setDisable(false);
+        // if (currentSolution == dominationSolutions.size() - 1) {
+        //     nextSolution.setDisable(true);
+        // }
     }
 
-    private void updateSolution() {
-        chessboard = dominationSolutions.get(currentSolution);
+    private void updateChessboard() {
         chessboardBuilder = new ChessboardBuilder(chessboard, chessboardPane, chessboardLocationMouseEventHandler);
         chessboardBuilder.setupChessboard();
         chessboardBuilder.updateChessboard();
-
-        solutionIndex.setText("Showing solution " + (currentSolution + 1) + " out of " + dominationSolutions.size());
     }
 
     private Optional<Point> getPreferredBoardSize() {
