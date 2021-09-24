@@ -133,7 +133,7 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
     }
 
     private ImmutableList<Point> getBoardLocationCombination(int index) {
-        return boardLocationCombinationIterables.get(0)
+        return boardLocationCombinationIterables.get(index)
                                                 .transform(i -> Point.fromIndex(i, boardWidth, boardHeight))
                                                 .toList();
     }
