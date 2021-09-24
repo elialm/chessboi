@@ -1,7 +1,6 @@
 package org.efac.chess;
 
 import java.util.Arrays;
-import java.util.ArrayList;
 
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;
@@ -21,7 +20,9 @@ public class DominationSolverTest {
         };
         DominationSolver solver = new DominationSolver(5, 5, Arrays.asList(pieces));
 
-        // ArrayList<Chessboard> solutions = solver.solve();
+        for (Chessboard solution : solver.getThreadedSolutions()) {
+            System.out.println(solution);
+        }
 
         return;
     }

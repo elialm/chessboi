@@ -46,7 +46,6 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
     private final List<FluentIterable<Integer>> boardLocationCombinationIterables;
     private Chessboard nextSolution;
     private boolean exhaustedIterator;
-    private int numberOfBoardCombinations;
     private int currentBoardCombination;
 
     private int currentLocationCombinationIndex;
@@ -59,13 +58,13 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         this.boardLocationCombinationIterables = boardLocationCombinations;
         nextSolution = null;
         exhaustedIterator = false;
-        numberOfBoardCombinations = boardLocationCombinations.size() * pieceCombinations.size();
         currentBoardCombination = 0;
 
         currentLocationCombinationIndex = 0;
         currentLocationCombination = getBoardLocationCombination(currentLocationCombinationIndex);
     }
-      
+    
+    @Override
     public boolean hasNext() {
         if (exhaustedIterator) {
             return false;
@@ -78,6 +77,7 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         return (nextSolution = findNext()) == null ? false : true;
     }
       
+    @Override
     public Chessboard next() {
         Chessboard next = nextSolution != null ? nextSolution : findNext();
         if (next == null) {
@@ -87,6 +87,7 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         return next;
     }
       
+    @Override
     public void remove() {
         throw new UnsupportedOperationException();
     }

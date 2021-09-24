@@ -1,7 +1,5 @@
 package org.efac.chess;
 
-import java.math.BigInteger;
-
 /**
  *  MIT License
 
@@ -27,10 +25,11 @@ import java.math.BigInteger;
 
  */
 
+import java.math.BigInteger;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
@@ -40,8 +39,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
-import org.efac.func.ReduceFunction;
 import org.efac.chess.iter.DominationSolutionIterator;
+import org.efac.chess.iter.ThreadedSolutionIterator;
+import org.efac.func.ReduceFunction;
 import org.efac.func.PyIterators;
 
 public class DominationSolver {
@@ -49,8 +49,6 @@ public class DominationSolver {
     private final int boardHeight;
     private final ArrayList<ChessPiece> pieces;
     private final int chessboardCombinations;
-    private Chessboard solutionChessboard;
-    private boolean ranSolver;
 
     public int getNumberOfChessboardCombinations() { return chessboardCombinations; }
 
@@ -59,25 +57,52 @@ public class DominationSolver {
         this.boardHeight = boardHeight;
         chessboardCombinations = calculateNumberOfBoardCombinations(pieces);
         this.pieces = new ArrayList<>(pieces);
-        solutionChessboard = null;
-        ranSolver = false;
     }
 
     public Iterable<Chessboard> getSolutions() {
         return new Iterable<Chessboard>(){
             @Override
             public Iterator<Chessboard> iterator() {
-                return Iterables.concat(getSolutionIterables()).iterator();
+                return Iterables.concat(getSolutionIterables(0)).iterator();
             }
         };
     }
 
-    public Iterable<Iterable<Chessboard>> getSolutionIterables() {
+    public Iterable<Chessboard> getThreadedSolutions() {
+        return new Iterable<Chessboard>(){
+            @Override
+            public Iterator<Chessboard> iterator() {
+                return new ThreadedSolutionIterator(getSolutionIterables(ThreadedSolutionIterator.THREAD_COUNT));
+            }
+        };
+    }
+
+    public List<Iterable<Chessboard>> getSolutionIterables(int minIterables) {        
         ArrayList<ImmutableList<ChessPiece>> pieceCombinations = generatePieceCombinations(pieces);
         ArrayList<FluentIterable<Integer>> boardLocationCombinations = generateBoardLocationCombinations(pieces.size());
         ArrayList<Iterable<Chessboard>> iterables = new ArrayList<>();
 
-        innerGetSolutionsIterable(iterables, pieceCombinations, boardLocationCombinations);
+        // Separate the solutions into at least minIterables iterables
+        //      If the number is too big, cap it at boardLocationCombinations.size()
+        //      If the number is zero, make it at least 1, taking the entire thing
+        if (minIterables > boardLocationCombinations.size()) {
+            minIterables = boardLocationCombinations.size();
+        } else if (minIterables == 0) {
+            minIterables = 1;
+        }
+
+        int iterableSize = (boardLocationCombinations.size() / minIterables);
+        if (boardLocationCombinations.size() % minIterables != 0) {
+            iterableSize += 1;
+        }
+
+        for (int i = 0; i < boardLocationCombinations.size(); i += iterableSize) {
+            if (i + iterableSize >= boardLocationCombinations.size()) {
+                innerGetSolutionsIterable(iterables, pieceCombinations, boardLocationCombinations.subList(i, boardLocationCombinations.size()));
+            } else {
+                innerGetSolutionsIterable(iterables, pieceCombinations, boardLocationCombinations.subList(i, i + iterableSize));
+            }
+        }
 
         return iterables;
     }
