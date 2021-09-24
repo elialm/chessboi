@@ -25,10 +25,10 @@ package org.efac.chess.iter;
 
  */
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Map;
+import java.util.List;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -42,8 +42,8 @@ import org.efac.func.PyIterators;
 public class DominationSolutionIterator implements Iterator<Chessboard> {
     private final int boardWidth;
     private final int boardHeight;
-    private final ArrayList<ImmutableList<ChessPiece>> pieceCombinations;
-    private final ArrayList<FluentIterable<Integer>> boardLocationCombinationIterables;
+    private final List<ImmutableList<ChessPiece>> pieceCombinations;
+    private final List<FluentIterable<Integer>> boardLocationCombinationIterables;
     private Chessboard nextSolution;
     private boolean exhaustedIterator;
     private int numberOfBoardCombinations;
@@ -52,7 +52,7 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
     private int currentLocationCombinationIndex;
     private ImmutableList<Point> currentLocationCombination;
     
-    public DominationSolutionIterator(int boardWidth, int boardHeight, ArrayList<ImmutableList<ChessPiece>> pieceCombinations, ArrayList<FluentIterable<Integer>> boardLocationCombinations) {
+    public DominationSolutionIterator(int boardWidth, int boardHeight, List<ImmutableList<ChessPiece>> pieceCombinations, List<FluentIterable<Integer>> boardLocationCombinations) {
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
         this.pieceCombinations = pieceCombinations;

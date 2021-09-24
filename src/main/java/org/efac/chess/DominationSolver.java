@@ -97,7 +97,7 @@ public class DominationSolver {
             iterables.add(new Iterable<Chessboard>() {
                 @Override
                 public Iterator<Chessboard> iterator() {
-                    return new DominationSolutionIterator(boardWidth, boardHeight, generatePieceCombinations(pieces), generateBoardLocationCombinations(pieces.size()));
+                    return new DominationSolutionIterator(boardWidth, boardHeight, pieceCombinations, boardLocationCombinations);
                 }
             });
         } catch (ArithmeticException e) {
