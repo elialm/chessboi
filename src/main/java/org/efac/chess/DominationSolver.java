@@ -131,15 +131,15 @@ public class DominationSolver {
         );
 
         while (!lastCombination.containsAll(currentCombination)) {
-            for (int i : PyIterators.reversed(PyIterators.range(0, numberOfPieces))) {
+            for (int i = numberOfPieces - 1; i >= 0; i--) {
                 if (currentCombination.get(i) < lastCombination.get(i)) {
-                    for (int j : PyIterators.range(i, numberOfPieces)) {
+                    for (int j = i; j < numberOfPieces; j++) {
                         currentCombination.set(j, currentCombination.get(j) + 1);
                     }
 
                     break;
                 } else if (currentCombination.get(i) == lastCombination.get(i)) {
-                    for (int j : PyIterators.reversed(PyIterators.range(0, i))) {
+                    for (int j = i - 1; j >= 0; j--) {
                         if (currentCombination.get(j) != lastCombination.get(j)) {
                             currentCombination.set(i, currentCombination.get(j) + (i - j));
                             break;
