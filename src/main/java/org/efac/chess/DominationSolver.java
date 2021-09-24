@@ -74,7 +74,7 @@ public class DominationSolver {
 
     public Iterable<Iterable<Chessboard>> getSolutionIterables() {
         ArrayList<ImmutableList<ChessPiece>> pieceCombinations = generatePieceCombinations(pieces);
-        ArrayList<ImmutableList<Point>> boardLocationCombinations = generateBoardLocationCombinations(pieces.size());
+        ArrayList<FluentIterable<Integer>> boardLocationCombinations = generateBoardLocationCombinations(pieces.size());
         ArrayList<Iterable<Chessboard>> iterables = new ArrayList<>();
 
         innerGetSolutionsIterable(iterables, pieceCombinations, boardLocationCombinations);
@@ -83,7 +83,7 @@ public class DominationSolver {
     }
 
     // This is an inner method, only to be called by getSolutionIterables()
-    private void innerGetSolutionsIterable(List<Iterable<Chessboard>> iterables, List<ImmutableList<ChessPiece>> pieceCombinations, List<ImmutableList<Point>> boardLocationCombinations) {
+    private void innerGetSolutionsIterable(List<Iterable<Chessboard>> iterables, List<ImmutableList<ChessPiece>> pieceCombinations, List<FluentIterable<Integer>> boardLocationCombinations) {
         try {
             // Try to multiply number of piece and location combinations
             //      If it is or exceeds Integer.MAX_VALUE, then the rest of the
@@ -115,14 +115,14 @@ public class DominationSolver {
         return factorial(cellCount).divide(factorial(numberOfQueens).multiply(factorial(numberOfBishops)).multiply(factorial(cellCount - numberOfQueens - numberOfBishops))).intValue();
     }
 
-    private ArrayList<ImmutableList<Point>> generateBoardLocationCombinations(int numberOfPieces) {
+    private ArrayList<FluentIterable<Integer>> generateBoardLocationCombinations(int numberOfPieces) {
         if (numberOfPieces == 0) {
             return new ArrayList<>();
         }
         
         final int cellCount = boardWidth * boardHeight;
         final int numberOfCombinations = factorial(cellCount).divide(factorial(numberOfPieces).multiply(factorial(cellCount - numberOfPieces))).intValue();
-        final ArrayList<ImmutableList<Point>> boardLocations = new ArrayList<>(numberOfCombinations);
+        final ArrayList<FluentIterable<Integer>> boardLocations = new ArrayList<>(numberOfCombinations);
 
         final ArrayList<Integer> currentCombination = Lists.newArrayList(PyIterators.range(0, numberOfPieces));
         final ArrayList<Integer> lastCombination = Lists.newArrayList(PyIterators.range(cellCount - numberOfPieces, cellCount));
@@ -130,8 +130,6 @@ public class DominationSolver {
         while (!lastCombination.containsAll(currentCombination)) {
             boardLocations.add(
                 FluentIterable.from(currentCombination)
-                                .transform(index -> Point.fromIndex(index, boardWidth, boardHeight))
-                                .toList()
             );
             
             for (int i : PyIterators.reversed(PyIterators.range(0, numberOfPieces))) {
