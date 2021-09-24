@@ -40,6 +40,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 
@@ -98,6 +99,9 @@ public class ChessboardController {
     @FXML
     private Label solutionIndex;
 
+    @FXML
+    private ProgressBar dominationProgressIndicator;
+
     public ChessboardController() {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
         chessboard = null;
@@ -125,6 +129,8 @@ public class ChessboardController {
     private void initialize() {
         addTextFieldFocusedListener(chessboardWidth);
         addTextFieldFocusedListener(chessboardHeight);
+
+        dominationProgressIndicator.setProgress(0.5);
     }
 
     @FXML
@@ -195,7 +201,7 @@ public class ChessboardController {
         int chessboardHeight = boardDimensions.get().getYComponent();
         
         DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
-        Iterator<Chessboard> solutions = solver.getSolutions().iterator();
+        Iterator<Chessboard> solutions = solver.getThreadedSolutions().iterator();
 
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setHeaderText("Solution result");

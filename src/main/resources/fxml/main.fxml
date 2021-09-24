@@ -10,6 +10,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.collections.FXCollections?>
 
 <!--
@@ -84,6 +85,9 @@
                 <Button fx:id="nextSolution" text="Next" disable="true" onAction="#displayNextSolution" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
             <Label fx:id="solutionIndex" text="No results"/>
+            <AnchorPane id="controls-chessboard-progress-bar">
+                <ProgressBar fx:id="dominationProgressIndicator" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+            </AnchorPane>
         </VBox>
     </left>
     <center>
