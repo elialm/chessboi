@@ -126,12 +126,11 @@ public class DominationSolver {
 
         final ArrayList<Integer> currentCombination = Lists.newArrayList(PyIterators.range(0, numberOfPieces));
         final ArrayList<Integer> lastCombination = Lists.newArrayList(PyIterators.range(cellCount - numberOfPieces, cellCount));
+        boardLocations.add(
+            FluentIterable.from((ArrayList<Integer>)currentCombination.clone())
+        );
 
         while (!lastCombination.containsAll(currentCombination)) {
-            boardLocations.add(
-                FluentIterable.from(currentCombination)
-            );
-            
             for (int i : PyIterators.reversed(PyIterators.range(0, numberOfPieces))) {
                 if (currentCombination.get(i) < lastCombination.get(i)) {
                     for (int j : PyIterators.range(i, numberOfPieces)) {
@@ -148,6 +147,10 @@ public class DominationSolver {
                     }
                 }
             }
+
+            boardLocations.add(
+                FluentIterable.from((ArrayList<Integer>)currentCombination.clone())
+            );
         }
 
         return boardLocations;
