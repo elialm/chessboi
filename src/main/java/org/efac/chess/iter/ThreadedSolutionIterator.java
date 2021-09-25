@@ -41,7 +41,7 @@ import com.google.common.collect.Iterables;
 import org.efac.chess.Chessboard;
 
 public class ThreadedSolutionIterator implements Iterator<Chessboard> {
-    public final static int THREAD_COUNT = 6;
+    public final static int THREAD_COUNT = 4;
     private final static int queueSize = 256;
 
     private final List<Iterable<Chessboard>> solutionIterables;
