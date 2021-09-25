@@ -27,6 +27,7 @@ package org.efac.ui;
 
 import javafx.fxml.FXML;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
@@ -197,25 +198,45 @@ public class ChessboardController {
             return;
         }
 
-        int chessboardWidth = boardDimensions.get().getXComponent();
-        int chessboardHeight = boardDimensions.get().getYComponent();
-        
-        DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
-        Iterator<Chessboard> solutions = solver.getThreadedSolutions().iterator();
+        solveDomination.setDisable(true);
 
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setHeaderText("Solution result");
+        Task<Void> task = new Task<Void>() {
+            @Override
+            public Void call() {
+                int chessboardWidth = boardDimensions.get().getXComponent();
+                int chessboardHeight = boardDimensions.get().getYComponent();
 
-        if (solutions.hasNext()) {
-            alert.setContentText("Found a solution");
-            alert.showAndWait();
+                DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
+                Iterator<Chessboard> solutions = solver.getThreadedSolutions().iterator();
 
-            chessboard = solutions.next();
-            updateChessboard();
-        } else {
-            alert.setContentText("Found no solutions");
-            alert.showAndWait();
-        }
+                if (solutions.hasNext()) {
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setHeaderText("Solution result");
+                        alert.setContentText("Found a solution");
+                        alert.showAndWait();
+
+                        chessboard = solutions.next();
+                        updateChessboard();
+
+                        solveDomination.setDisable(false);
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setHeaderText("Solution result");
+                        alert.setContentText("Found no solutions");
+                        alert.showAndWait();
+
+                        solveDomination.setDisable(false);
+                    });
+                }
+
+                return null;
+            }
+        };
+
+        new Thread(task).start();
     }
 
     @FXML
