@@ -48,9 +48,9 @@ public class DominationSolver {
     private final int boardWidth;
     private final int boardHeight;
     private final ArrayList<ChessPiece> pieces;
-    private final int chessboardCombinations;
+    private final BigInteger chessboardCombinations;
 
-    public int getNumberOfChessboardCombinations() { return chessboardCombinations; }
+    public BigInteger getNumberOfChessboardCombinations() { return chessboardCombinations; }
 
     public DominationSolver(int boardWidth, int boardHeight, List<ChessPiece> pieces) {
         this.boardWidth = boardWidth;
@@ -132,12 +132,12 @@ public class DominationSolver {
         }
     }
 
-    private int calculateNumberOfBoardCombinations(List<ChessPiece> pieces) {
+    private BigInteger calculateNumberOfBoardCombinations(List<ChessPiece> pieces) {
         final int cellCount = boardWidth * boardHeight;
         final int numberOfQueens = countPiecesOfType(pieces, ChessPiece.Type.QUEEN);
         final int numberOfBishops = countPiecesOfType(pieces, ChessPiece.Type.BISHOP);
 
-        return factorial(cellCount).divide(factorial(numberOfQueens).multiply(factorial(numberOfBishops)).multiply(factorial(cellCount - numberOfQueens - numberOfBishops))).intValue();
+        return factorial(cellCount).divide(factorial(numberOfQueens).multiply(factorial(numberOfBishops)).multiply(factorial(cellCount - numberOfQueens - numberOfBishops)));
     }
 
     private ArrayList<FluentIterable<Integer>> generateBoardLocationCombinations(int numberOfPieces) {
