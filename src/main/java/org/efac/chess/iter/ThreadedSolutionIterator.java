@@ -35,8 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Future;
-
-import com.google.common.collect.Iterables;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.efac.chess.Chessboard;
 
@@ -48,6 +47,7 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
     private final ThreadPoolExecutor executor;
     private final ArrayBlockingQueue<Chessboard> solutionQueue;
     private final ArrayList<Future<Exception>> futures;
+    private final AtomicInteger runningThreads;
     private Chessboard nextSolution;
     
     public ThreadedSolutionIterator(List<Iterable<Chessboard>> iterables) {
@@ -55,6 +55,7 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
         executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(THREAD_COUNT);
         solutionQueue = new ArrayBlockingQueue<>(queueSize);
         futures = new ArrayList<>(THREAD_COUNT);
+        runningThreads = new AtomicInteger(THREAD_COUNT);
         nextSolution = null;
 
         for (int i = 0; i < solutionIterables.size(); i++) {
@@ -65,10 +66,13 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
                     for (Chessboard solution : solutionIterable) {
                         solutionQueue.put(solution);
                     }
-                } catch (InterruptedException ex) {
+                } catch (NullPointerException ex) {
+                    runningThreads.decrementAndGet();
+                    ex.printStackTrace();
                     return ex;
                 }
 
+                runningThreads.decrementAndGet();
                 return null;
             });
 
@@ -83,9 +87,9 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
         }
 
         try {
-            while (nextSolution == null && !Iterables.all(futures, future -> future.isDone())) {
+            do {
                 nextSolution = solutionQueue.poll(200, TimeUnit.MILLISECONDS);
-            }
+            } while (nextSolution == null && runningThreads.get() != 0);
 
         } catch (InterruptedException ex) {
             return false;

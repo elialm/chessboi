@@ -47,10 +47,9 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
     private Chessboard nextSolution;
     private boolean exhaustedIterator;
     private int currentBoardCombination;
+    private int previousLocationCombinationIndex;
+    private ImmutableList<Point> cachedLocationCombination;
 
-    private int currentLocationCombinationIndex;
-    private ImmutableList<Point> currentLocationCombination;
-    
     public DominationSolutionIterator(int boardWidth, int boardHeight, List<ImmutableList<ChessPiece>> pieceCombinations, List<FluentIterable<Integer>> boardLocationCombinations) {
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
@@ -59,9 +58,8 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         nextSolution = null;
         exhaustedIterator = false;
         currentBoardCombination = 0;
-
-        currentLocationCombinationIndex = 0;
-        currentLocationCombination = getBoardLocationCombination(currentLocationCombinationIndex);
+        previousLocationCombinationIndex = -1;
+        cachedLocationCombination = null;
     }
     
     @Override
@@ -79,7 +77,12 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
       
     @Override
     public Chessboard next() {
+        if (exhaustedIterator) {
+            throw new NoSuchElementException("Iterator has been exhausted");
+        }
+        
         Chessboard next = nextSolution != null ? nextSolution : findNext();
+        nextSolution = null;
         if (next == null) {
             throw new NoSuchElementException("Iterator has been exhausted");
         }
@@ -97,12 +100,8 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         boolean firstLocationIteration = true;
         
         locationCombinationsLoop:
-        for (; currentLocationCombinationIndex < boardLocationCombinationIterables.size(); currentLocationCombinationIndex++) {
-            if (firstLocationIteration) {
-                firstLocationIteration = false;
-            } else {
-                currentLocationCombination = getBoardLocationCombination(currentLocationCombinationIndex);
-            }
+        for (int currentLocationCombinationIndex = currentBoardCombination / pieceCombinations.size(); currentLocationCombinationIndex < boardLocationCombinationIterables.size(); currentLocationCombinationIndex++) {
+            ImmutableList<Point> currentLocationCombination = getBoardLocationCombination(currentLocationCombinationIndex);
             
             for (int pieceCombinationIndex = currentBoardCombination % pieceCombinations.size(); pieceCombinationIndex < pieceCombinations.size(); currentBoardCombination++, pieceCombinationIndex++) {
                 ImmutableList<ChessPiece> currentPieceCombination = pieceCombinations.get(pieceCombinationIndex);
@@ -110,6 +109,7 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
             
                 if (chessboard.isDominated()) {
                     chessboardSolution = chessboard;
+                    currentBoardCombination++;
                     break locationCombinationsLoop;
                 }
             }
@@ -134,8 +134,13 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
     }
 
     private ImmutableList<Point> getBoardLocationCombination(int index) {
-        return boardLocationCombinationIterables.get(index)
-                                                .transform(i -> Point.fromIndex(i, boardWidth, boardHeight))
-                                                .toList();
+        if (index == previousLocationCombinationIndex) {
+            return cachedLocationCombination;
+        }
+
+        previousLocationCombinationIndex = index;
+        return cachedLocationCombination = boardLocationCombinationIterables.get(index)
+                                                                            .transform(i -> Point.fromIndex(i, boardWidth, boardHeight))
+                                                                            .toList();
     }
 }

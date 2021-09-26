@@ -21,9 +21,7 @@ public class DominationSolverTest {
         DominationSolver solver = new DominationSolver(5, 5, Arrays.asList(pieces));
 
         for (Chessboard solution : solver.getThreadedSolutions()) {
-            System.out.println(solution);
+            // System.out.println(solution);
         }
-
-        return;
     }
 }
