@@ -27,7 +27,7 @@ public class ThreadedSolutionIterable implements Iterable<Chessboard> {
     } 
     
     @Override
-    public Iterator<Chessboard> iterator() {
+    public ThreadedSolutionIterator iterator() {
         return new ThreadedSolutionIterator(solutionIterables);
     }
 

@@ -43,12 +43,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
+import javafx.util.Duration;
 import javafx.scene.layout.BorderPane;
+import javafx.concurrent.ScheduledService;
 
 import java.util.regex.Pattern;
-import java.security.PublicKey;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
+import java.math.BigInteger;
 import java.util.Iterator;
 
 import org.efac.chess.Chessboard;
@@ -56,10 +57,11 @@ import org.efac.chess.DominationSolver;
 import org.efac.chess.BoardLocation;
 import org.efac.chess.ChessPiece;
 import org.efac.chess.ChessPiece.Color;
-import org.efac.chess.iter.DominationSolutionIterator;
 import org.efac.chess.Point;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
+import org.efac.chess.iter.ThreadedSolutionIterable;
+import org.efac.chess.iter.ThreadedSolutionIterator;
 
 import com.google.common.base.Optional;
 
@@ -207,22 +209,48 @@ public class ChessboardController {
                 int chessboardHeight = boardDimensions.get().getYComponent();
 
                 DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
-                Iterator<Chessboard> solutions = solver.getThreadedSolutions().iterator();
+                ThreadedSolutionIterable solutionIterable = solver.getThreadedSolutions();
+                ThreadedSolutionIterator solutionIterator = solutionIterable.iterator();
 
-                if (solutions.hasNext()) {
+                final ScheduledService<Void> svc = new ScheduledService<Void>(){
+                    protected Task<Void> createTask() {
+                        return new Task<Void>() {
+                            protected Void call() {
+                                BigInteger currentProgress = solutionIterable.getCurrentProgress();
+                                System.out.println(currentProgress + " out of " + solver.getNumberOfChessboardCombinations());
+                                double progress = currentProgress.doubleValue() / solver.getNumberOfChessboardCombinations().doubleValue();
+                                System.out.println(progress);
+
+                                Platform.runLater(() -> {
+                                    dominationProgressIndicator.setProgress(progress);
+                                });
+
+                                return null;
+                            }
+                        };
+                    }
+                };
+                svc.setPeriod(Duration.seconds(1));
+                svc.start();
+
+                if (solutionIterator.hasNext()) {
                     Platform.runLater(() -> {
+                        svc.cancel();
+
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setHeaderText("Solution result");
                         alert.setContentText("Found a solution");
                         alert.showAndWait();
 
-                        chessboard = solutions.next();
+                        chessboard = solutionIterator.next();
                         updateChessboard();
 
                         solveDomination.setDisable(false);
                     });
                 } else {
                     Platform.runLater(() -> {
+                        svc.cancel();
+
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setHeaderText("Solution result");
                         alert.setContentText("Found no solutions");

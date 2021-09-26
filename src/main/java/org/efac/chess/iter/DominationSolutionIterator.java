@@ -111,17 +111,22 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         for (int currentLocationCombinationIndex = currentBoardCombination / pieceCombinations.size(); currentLocationCombinationIndex < boardLocationCombinationIterables.size(); currentLocationCombinationIndex++) {
             ImmutableList<Point> currentLocationCombination = getBoardLocationCombination(currentLocationCombinationIndex);
             
+            if (progressUpdateCallback != null) {
+                progressUpdateCallback.updateProgress(currentBoardCombination);
+            }
+
             for (int pieceCombinationIndex = currentBoardCombination % pieceCombinations.size(); pieceCombinationIndex < pieceCombinations.size(); currentBoardCombination++, pieceCombinationIndex++) {
                 ImmutableList<ChessPiece> currentPieceCombination = pieceCombinations.get(pieceCombinationIndex);
                 Chessboard chessboard = createChessboard(PyIterators.zip(currentLocationCombination, currentPieceCombination));
-                
-                if (progressUpdateCallback != null) {
-                    progressUpdateCallback.updateProgress(currentBoardCombination);
-                }
             
                 if (chessboard.isDominated()) {
                     chessboardSolution = chessboard;
                     currentBoardCombination++;
+
+                    if (progressUpdateCallback != null) {
+                        progressUpdateCallback.updateProgress(currentBoardCombination);
+                    }
+                    
                     break locationCombinationsLoop;
                 }
             }

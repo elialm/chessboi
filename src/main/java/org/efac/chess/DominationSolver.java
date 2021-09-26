@@ -69,7 +69,7 @@ public class DominationSolver {
         };
     }
 
-    public Iterable<Chessboard> getThreadedSolutions() {
+    public ThreadedSolutionIterable getThreadedSolutions() {
         return new ThreadedSolutionIterable(
             FluentIterable.from(getSolutionIterators(ThreadedSolutionIterator.PREFERRED_THREAD_COUNT))
                             .transform(iterable -> (DominationSolutionIterator)iterable.iterator())
