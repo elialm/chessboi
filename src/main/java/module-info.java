@@ -6,6 +6,7 @@ module org.efac {
     opens org.efac.ui to javafx.fxml;
     
     requires guava;
+    requires com.github.oshi;
 
     exports org.efac;
     exports org.efac.ui;

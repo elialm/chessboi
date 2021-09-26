@@ -72,7 +72,7 @@ public class DominationSolver {
         return new Iterable<Chessboard>(){
             @Override
             public Iterator<Chessboard> iterator() {
-                return new ThreadedSolutionIterator(getSolutionIterables(ThreadedSolutionIterator.THREAD_COUNT));
+                return new ThreadedSolutionIterator(getSolutionIterables(ThreadedSolutionIterator.PREFERRED_THREAD_COUNT));
             }
         };
     }
