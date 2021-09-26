@@ -45,14 +45,14 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
     public final static int PREFERRED_THREAD_COUNT = new SystemInfo().getHardware().getProcessor().getPhysicalProcessorCount();
     private final static int queueSize = 256;
 
-    private final List<Iterable<Chessboard>> solutionIterables;
+    private final List<DominationSolutionIterator> solutionIterables;
     private final ThreadPoolExecutor executor;
     private final ArrayBlockingQueue<Chessboard> solutionQueue;
     private final ArrayList<Future<Exception>> futures;
     private final AtomicInteger runningThreads;
     private Chessboard nextSolution;
     
-    public ThreadedSolutionIterator(List<Iterable<Chessboard>> iterables) {
+    public ThreadedSolutionIterator(List<DominationSolutionIterator> iterables) {
         solutionIterables = iterables;
         executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(iterables.size());
         solutionQueue = new ArrayBlockingQueue<>(queueSize);
@@ -61,12 +61,12 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
         nextSolution = null;
 
         for (int i = 0; i < solutionIterables.size(); i++) {
-            Iterable<Chessboard> solutionIterable = solutionIterables.get(i);
+            DominationSolutionIterator solutionIterable = solutionIterables.get(i);
 
             Future<Exception> future = executor.submit(() -> {
                 try {
-                    for (Chessboard solution : solutionIterable) {
-                        solutionQueue.put(solution);
+                    while (solutionIterable.hasNext()) {
+                        solutionQueue.put(solutionIterable.next());
                     }
                 } catch (NullPointerException ex) {
                     runningThreads.decrementAndGet();

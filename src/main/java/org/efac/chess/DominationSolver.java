@@ -41,6 +41,7 @@ import com.google.common.collect.Iterables;
 
 import org.efac.chess.iter.DominationSolutionIterator;
 import org.efac.chess.iter.ThreadedSolutionIterator;
+import org.efac.chess.iter.ThreadedSolutionIterable;
 import org.efac.func.ReduceFunction;
 import org.efac.func.PyIterators;
 
@@ -63,21 +64,20 @@ public class DominationSolver {
         return new Iterable<Chessboard>(){
             @Override
             public Iterator<Chessboard> iterator() {
-                return Iterables.concat(getSolutionIterables(0)).iterator();
+                return Iterables.concat(getSolutionIterators(0)).iterator();
             }
         };
     }
 
     public Iterable<Chessboard> getThreadedSolutions() {
-        return new Iterable<Chessboard>(){
-            @Override
-            public Iterator<Chessboard> iterator() {
-                return new ThreadedSolutionIterator(getSolutionIterables(ThreadedSolutionIterator.PREFERRED_THREAD_COUNT));
-            }
-        };
+        return new ThreadedSolutionIterable(
+            FluentIterable.from(getSolutionIterators(ThreadedSolutionIterator.PREFERRED_THREAD_COUNT))
+                            .transform(iterable -> (DominationSolutionIterator)iterable.iterator())
+                            .toList()
+        );
     }
 
-    public List<Iterable<Chessboard>> getSolutionIterables(int minIterables) {        
+    public List<Iterable<Chessboard>> getSolutionIterators(int minIterables) {        
         ArrayList<ImmutableList<ChessPiece>> pieceCombinations = generatePieceCombinations(pieces);
         ArrayList<FluentIterable<Integer>> boardLocationCombinations = generateBoardLocationCombinations(pieces.size());
         ArrayList<Iterable<Chessboard>> iterables = new ArrayList<>();
@@ -125,6 +125,8 @@ public class DominationSolver {
                     return new DominationSolutionIterator(boardWidth, boardHeight, pieceCombinations, boardLocationCombinations);
                 }
             });
+
+            // iterables.add(new DominationSolutionIterator(boardWidth, boardHeight, pieceCombinations, boardLocationCombinations));
         } catch (ArithmeticException e) {
             int halfBoardLocationCombinationsIndex = boardLocationCombinations.size() / 2;
             innerGetSolutionsIterable(iterables, pieceCombinations, boardLocationCombinations.subList(0, halfBoardLocationCombinationsIndex));
