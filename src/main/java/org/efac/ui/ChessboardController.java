@@ -265,9 +265,7 @@ public class ChessboardController {
                 DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
                 ThreadedSolutionIterable solutionIterable = solver.getThreadedSolutions();
 
-                progressBarUpdater = createProgressUpdaterService(solver.getNumberOfChessboardCombinations(), solutionIterable);
-                progressBarUpdater.setPeriod(Duration.seconds(1));
-
+                setupProgressBar(solver.getNumberOfChessboardCombinations(), solutionIterable);
                 dominationSolutions = FluentIterable.from(solutionIterable).toList();
 
                 if (isCancelled()) {
@@ -277,6 +275,7 @@ public class ChessboardController {
                 if (!dominationSolutions.isEmpty()) {
                     Platform.runLater(() -> {
                         progressBarUpdater.cancel();
+                        dominationProgressIndicator.setVisible(false);
 
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setHeaderText("Solution result");
@@ -292,6 +291,7 @@ public class ChessboardController {
                 } else {
                     Platform.runLater(() -> {
                         progressBarUpdater.cancel();
+                        dominationProgressIndicator.setVisible(false);
 
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setHeaderText("Solution result");
@@ -308,6 +308,17 @@ public class ChessboardController {
 
         solverThread = new Thread(solverTask);
         solverThread.start();
+    }
+
+    private void setupProgressBar(BigInteger numberOfChessboardCombinations, ThreadedSolutionIterable solutionIterable) {
+        progressBarUpdater = createProgressUpdaterService(numberOfChessboardCombinations, solutionIterable);
+        progressBarUpdater.setPeriod(Duration.seconds(1));
+        progressBarUpdater.start();
+
+        Platform.runLater(() -> {
+            dominationProgressIndicator.setVisible(true);
+            dominationProgressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+        });
     }
 
     private void updateSolution() {
