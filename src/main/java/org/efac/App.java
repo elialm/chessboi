@@ -34,7 +34,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import org.efac.ui.ChessboardBuilder;
-
+import org.efac.ui.ChessboardController;
 import org.efac.chess.Chessboard;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;
@@ -51,7 +51,7 @@ public class App extends Application {
         stage.setTitle("chessboi");
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/img/white_queen.png")));
 
-        var loader = new FXMLLoader();
+        FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/fxml/main.fxml"));
 
         BorderPane pane = null;
@@ -69,6 +69,10 @@ public class App extends Application {
 
         stage.setScene(scene);
         stage.setResizable(false);
+
+        ChessboardController controller = (ChessboardController)loader.getController();
+        controller.setupController(stage);
+        
         stage.show();
     }
 

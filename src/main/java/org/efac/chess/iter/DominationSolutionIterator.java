@@ -51,6 +51,7 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
     private int currentBoardCombination;
     private int previousLocationCombinationIndex;
     private ImmutableList<Point> cachedLocationCombination;
+    private volatile boolean cancelIteration;
 
     public void setProgressUpdateCallback(ProgressUpdate callback) { progressUpdateCallback = callback; }
 
@@ -69,6 +70,7 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         currentBoardCombination = 0;
         previousLocationCombinationIndex = -1;
         cachedLocationCombination = null;
+        cancelIteration = false;
     }
     
     @Override
@@ -104,18 +106,23 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         throw new UnsupportedOperationException();
     }
 
+    public void cancel() {
+        cancelIteration = true;
+        exhaustedIterator = true;
+    }
+
     private Chessboard findNext() {
         Chessboard chessboardSolution = null;
         
         locationCombinationsLoop:
-        for (int currentLocationCombinationIndex = currentBoardCombination / pieceCombinations.size(); currentLocationCombinationIndex < boardLocationCombinationIterables.size(); currentLocationCombinationIndex++) {
+        for (int currentLocationCombinationIndex = currentBoardCombination / pieceCombinations.size(); currentLocationCombinationIndex < boardLocationCombinationIterables.size() && !cancelIteration; currentLocationCombinationIndex++) {
             ImmutableList<Point> currentLocationCombination = getBoardLocationCombination(currentLocationCombinationIndex);
             
             if (progressUpdateCallback != null) {
                 progressUpdateCallback.updateProgress(currentBoardCombination);
             }
 
-            for (int pieceCombinationIndex = currentBoardCombination % pieceCombinations.size(); pieceCombinationIndex < pieceCombinations.size(); currentBoardCombination++, pieceCombinationIndex++) {
+            for (int pieceCombinationIndex = currentBoardCombination % pieceCombinations.size(); pieceCombinationIndex < pieceCombinations.size() && !cancelIteration; currentBoardCombination++, pieceCombinationIndex++) {
                 ImmutableList<ChessPiece> currentPieceCombination = pieceCombinations.get(pieceCombinationIndex);
                 Chessboard chessboard = createChessboard(PyIterators.zip(currentLocationCombination, currentPieceCombination));
             

@@ -62,12 +62,10 @@ import org.efac.chess.Point;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
 import org.efac.chess.iter.ThreadedSolutionIterable;
-import org.efac.chess.iter.ThreadedSolutionIterator;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public class ChessboardController {
     
@@ -77,6 +75,7 @@ public class ChessboardController {
     private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
     private ScheduledService<Void> progressBarUpdater;
     private Thread solverThread;
+    private Task<Void> solverTask;
     private ImmutableList<Chessboard> dominationSolutions;
     private int currentSolution;
 
@@ -249,7 +248,7 @@ public class ChessboardController {
         }
 
         if (solverThread != null) {
-            solverThread.interrupt();
+            solverTask.cancel(true);
             
             try {
                 solverThread.join();
@@ -260,7 +259,7 @@ public class ChessboardController {
     }
 
     private void startSolverTask(int chessboardWidth, int chessboardHeight) {
-        Task<Void> solverTask = new Task<Void>() {
+        solverTask = new Task<Void>() {
             @Override
             public Void call() {
                 DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
@@ -270,6 +269,10 @@ public class ChessboardController {
                 progressBarUpdater.setPeriod(Duration.seconds(1));
 
                 dominationSolutions = FluentIterable.from(solutionIterable).toList();
+
+                if (isCancelled()) {
+                    return null;
+                }
 
                 if (!dominationSolutions.isEmpty()) {
                     Platform.runLater(() -> {

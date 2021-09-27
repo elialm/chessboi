@@ -45,7 +45,7 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
     public final static int PREFERRED_THREAD_COUNT = new SystemInfo().getHardware().getProcessor().getPhysicalProcessorCount();
     private final static int queueSize = 256;
 
-    private final List<DominationSolutionIterator> solutionIterables;
+    private final List<DominationSolutionIterator> solutionIterators;
     private final ThreadPoolExecutor executor;
     private final ArrayBlockingQueue<Chessboard> solutionQueue;
     private final ArrayList<Future<Exception>> futures;
@@ -53,22 +53,22 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
     private Chessboard nextSolution;
     
     public ThreadedSolutionIterator(List<DominationSolutionIterator> iterables) {
-        solutionIterables = iterables;
+        solutionIterators = iterables;
         executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(iterables.size());
         solutionQueue = new ArrayBlockingQueue<>(queueSize);
         futures = new ArrayList<>(iterables.size());
         runningThreads = new AtomicInteger(iterables.size());
         nextSolution = null;
 
-        for (int i = 0; i < solutionIterables.size(); i++) {
-            DominationSolutionIterator solutionIterable = solutionIterables.get(i);
+        for (int i = 0; i < solutionIterators.size(); i++) {
+            DominationSolutionIterator solutionIterator = solutionIterators.get(i);
 
             Future<Exception> future = executor.submit(() -> {
                 try {
-                    while (solutionIterable.hasNext()) {
-                        solutionQueue.put(solutionIterable.next());
+                    while (solutionIterator.hasNext()) {
+                        solutionQueue.put(solutionIterator.next());
                     }
-                } catch (NullPointerException ex) {
+                } catch (InterruptedException ex) {
                     runningThreads.decrementAndGet();
                     return ex;
                 }
@@ -93,11 +93,11 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
             } while (nextSolution == null && runningThreads.get() != 0);
 
         } catch (InterruptedException ex) {
-            cleanup();
+            cleanup(true);
             return false;
         }
 
-        cleanup();
+        cleanup(false);
         return nextSolution != null;
     }
 
@@ -117,9 +117,12 @@ public class ThreadedSolutionIterator implements Iterator<Chessboard> {
         throw new UnsupportedOperationException();
     }
 
-    public void cleanup() {
-        if (runningThreads.get() == 0) {
+    public void cleanup(boolean forced) {
+        if (runningThreads.get() == 0 || forced) {
             executor.shutdown();
+            for (DominationSolutionIterator iter : solutionIterators) {
+                iter.cancel();
+            }
         }
     }
 }
