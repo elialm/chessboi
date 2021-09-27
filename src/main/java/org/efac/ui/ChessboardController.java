@@ -54,13 +54,13 @@ import java.util.regex.Matcher;
 import java.math.BigInteger;
 
 import org.efac.chess.Chessboard;
-import org.efac.chess.DominationSolver;
 import org.efac.chess.BoardLocation;
 import org.efac.chess.ChessPiece;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.Point;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
+import org.efac.chess.solver.DominationSolver;
 import org.efac.chess.iter.ThreadedSolutionIterable;
 
 import com.google.common.base.Optional;

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.efac.chess.ChessPiece.Color;
 import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
-
+import org.efac.chess.solver.DominationSolver;
 import org.junit.jupiter.api.Test;
 
 public class DominationSolverTest {

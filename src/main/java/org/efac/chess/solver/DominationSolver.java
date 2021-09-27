@@ -1,4 +1,4 @@
-package org.efac.chess;
+package org.efac.chess.solver;
 
 /**
  *  MIT License
@@ -39,6 +39,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
+import org.efac.chess.ChessPiece;
+import org.efac.chess.Chessboard;
 import org.efac.chess.iter.DominationSolutionIterator;
 import org.efac.chess.iter.ThreadedSolutionIterator;
 import org.efac.chess.iter.ThreadedSolutionIterable;
