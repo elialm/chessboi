@@ -43,6 +43,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import javafx.scene.layout.BorderPane;
 import javafx.concurrent.ScheduledService;
@@ -50,7 +52,6 @@ import javafx.concurrent.ScheduledService;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.math.BigInteger;
-import java.util.Iterator;
 
 import org.efac.chess.Chessboard;
 import org.efac.chess.DominationSolver;
@@ -64,6 +65,9 @@ import org.efac.chess.iter.ThreadedSolutionIterable;
 import org.efac.chess.iter.ThreadedSolutionIterator;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 public class ChessboardController {
     
@@ -71,6 +75,10 @@ public class ChessboardController {
     private Chessboard chessboard;
     private ChessboardBuilder chessboardBuilder;
     private EventHandler<MouseEvent> chessboardLocationMouseEventHandler;
+    private ScheduledService<Void> progressBarUpdater;
+    private Thread solverThread;
+    private ImmutableList<Chessboard> dominationSolutions;
+    private int currentSolution;
 
     @FXML
     private TextField chessboardWidth;
@@ -109,6 +117,10 @@ public class ChessboardController {
         numberFormatExceptionPattern = Pattern.compile("For input string: \"(.*)\"");
         chessboard = null;
         chessboardBuilder = null;
+        progressBarUpdater = null;
+        solverThread = null;
+        dominationSolutions = null;
+        currentSolution = 0;
 
         chessboardLocationMouseEventHandler = new EventHandler<MouseEvent>() {
             @Override
@@ -132,8 +144,10 @@ public class ChessboardController {
     private void initialize() {
         addTextFieldFocusedListener(chessboardWidth);
         addTextFieldFocusedListener(chessboardHeight);
+    }
 
-        dominationProgressIndicator.setProgress(0.5);
+    public void setupController(Stage stage) {
+        stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
     }
 
     @FXML
@@ -201,55 +215,80 @@ public class ChessboardController {
         }
 
         solveDomination.setDisable(true);
+        nextSolution.setDisable(true);
+        previousSolution.setDisable(true);
 
-        Task<Void> task = new Task<Void>() {
+        startSolverTask(boardDimensions.get().getXComponent(), boardDimensions.get().getYComponent());
+    }
+
+    @FXML
+    public void displayPreviousSolution(ActionEvent event) {
+        currentSolution--;
+        updateSolution();
+
+        nextSolution.setDisable(false);
+        if (currentSolution == 0) {
+            previousSolution.setDisable(true);
+        }
+    }
+
+    @FXML
+    public void displayNextSolution(ActionEvent event) {
+        currentSolution++;
+        updateSolution();
+
+        previousSolution.setDisable(false);
+        if (currentSolution == dominationSolutions.size() - 1) {
+            nextSolution.setDisable(true);
+        }
+    }
+
+    private void closeWindowEvent(WindowEvent event) {
+        if (progressBarUpdater != null) {
+            progressBarUpdater.cancel();
+        }
+
+        if (solverThread != null) {
+            solverThread.interrupt();
+            
+            try {
+                solverThread.join();
+            } catch (InterruptedException ex) {
+                // Application is closing, so ignore exception
+            }
+        }
+    }
+
+    private void startSolverTask(int chessboardWidth, int chessboardHeight) {
+        Task<Void> solverTask = new Task<Void>() {
             @Override
             public Void call() {
-                int chessboardWidth = boardDimensions.get().getXComponent();
-                int chessboardHeight = boardDimensions.get().getYComponent();
-
                 DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
                 ThreadedSolutionIterable solutionIterable = solver.getThreadedSolutions();
-                ThreadedSolutionIterator solutionIterator = solutionIterable.iterator();
 
-                final ScheduledService<Void> svc = new ScheduledService<Void>(){
-                    protected Task<Void> createTask() {
-                        return new Task<Void>() {
-                            protected Void call() {
-                                BigInteger currentProgress = solutionIterable.getCurrentProgress();
-                                System.out.println(currentProgress + " out of " + solver.getNumberOfChessboardCombinations());
-                                double progress = currentProgress.doubleValue() / solver.getNumberOfChessboardCombinations().doubleValue();
-                                System.out.println(progress);
+                progressBarUpdater = createProgressUpdaterService(solver.getNumberOfChessboardCombinations(), solutionIterable);
+                progressBarUpdater.setPeriod(Duration.seconds(1));
 
-                                Platform.runLater(() -> {
-                                    dominationProgressIndicator.setProgress(progress);
-                                });
+                dominationSolutions = FluentIterable.from(solutionIterable).toList();
 
-                                return null;
-                            }
-                        };
-                    }
-                };
-                svc.setPeriod(Duration.seconds(1));
-                svc.start();
-
-                if (solutionIterator.hasNext()) {
+                if (!dominationSolutions.isEmpty()) {
                     Platform.runLater(() -> {
-                        svc.cancel();
+                        progressBarUpdater.cancel();
 
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setHeaderText("Solution result");
                         alert.setContentText("Found a solution");
                         alert.showAndWait();
 
-                        chessboard = solutionIterator.next();
-                        updateChessboard();
+                        currentSolution = 0;
+                        updateSolution();
 
                         solveDomination.setDisable(false);
+                        nextSolution.setDisable(dominationSolutions.size() <= 1);
                     });
                 } else {
                     Platform.runLater(() -> {
-                        svc.cancel();
+                        progressBarUpdater.cancel();
 
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setHeaderText("Solution result");
@@ -264,35 +303,36 @@ public class ChessboardController {
             }
         };
 
-        new Thread(task).start();
+        solverThread = new Thread(solverTask);
+        solverThread.start();
     }
 
-    @FXML
-    public void displayPreviousSolution(ActionEvent event) {
-        // currentSolution--;
-        // updateSolution();
-
-        // nextSolution.setDisable(false);
-        // if (currentSolution == 0) {
-        //     previousSolution.setDisable(true);
-        // }
-    }
-
-    @FXML
-    public void displayNextSolution(ActionEvent event) {
-        // currentSolution++;
-        // updateSolution();
-
-        // previousSolution.setDisable(false);
-        // if (currentSolution == dominationSolutions.size() - 1) {
-        //     nextSolution.setDisable(true);
-        // }
-    }
-
-    private void updateChessboard() {
+    private void updateSolution() {
+        chessboard = dominationSolutions.get(currentSolution);
         chessboardBuilder = new ChessboardBuilder(chessboard, chessboardPane, chessboardLocationMouseEventHandler);
         chessboardBuilder.setupChessboard();
         chessboardBuilder.updateChessboard();
+
+        solutionIndex.setText("Showing solution " + (currentSolution + 1) + " out of " + dominationSolutions.size());
+    }
+
+    private ScheduledService<Void> createProgressUpdaterService(BigInteger numberOfChessboardCombinations, ThreadedSolutionIterable solutionIterable) {
+        return new ScheduledService<Void>(){
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    protected Void call() {
+                        BigInteger currentProgress = solutionIterable.getCurrentProgress();
+                        double progress = currentProgress.doubleValue() / numberOfChessboardCombinations.doubleValue();
+
+                        Platform.runLater(() -> {
+                            dominationProgressIndicator.setProgress(progress);
+                        });
+
+                        return null;
+                    }
+                };
+            }
+        };
     }
 
     private Optional<Point> getPreferredBoardSize() {
