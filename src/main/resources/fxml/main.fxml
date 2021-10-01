@@ -81,7 +81,7 @@
                 <Button fx:id="solveDomination" text="Solve domination" onAction="#solveDominationProblem" disable="true" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
             <AnchorPane id="controls-chessboard-solve">
-                <Button fx:id="solveBishopDomination" text="Solve bishop domination" onAction="#solveBishopDominationProblem" disable="true" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                <Button fx:id="solveBishopDomination" text="Solve bishop domination" onAction="#solveBishopDominationProblem" disable="false" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
             <AnchorPane id="controls-chessboard-progress-bar">
                 <ProgressBar fx:id="dominationProgressIndicator" visible="false" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>

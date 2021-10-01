@@ -188,7 +188,7 @@ public class ChessboardController {
     public void clearChessPieces(ActionEvent event) {
         solverChessPieces.getItems().clear();
         solveDomination.setDisable(true);
-        solveBishopDomination.setDisable(true);
+        solveBishopDomination.setDisable(false);
     }
 
     @FXML
@@ -199,6 +199,7 @@ public class ChessboardController {
         }
 
         solveDomination.setDisable(true);
+        solveBishopDomination.setDisable(true);
 
         startSolverTask(boardDimensions.get().getXComponent(), boardDimensions.get().getYComponent());
     }
@@ -211,8 +212,13 @@ public class ChessboardController {
         }
 
         solveDomination.setDisable(true);
+        solveBishopDomination.setDisable(true);
 
-        startSolverTask(boardDimensions.get().getXComponent(), boardDimensions.get().getYComponent());
+        if (solverChessPieces.getItems().isEmpty()) {
+            solverChessPieces.getItems().add(new Bishop(Color.BLACK));
+        }
+
+        startBishopSolverTask(boardDimensions.get().getXComponent(), boardDimensions.get().getYComponent());
     }
 
     private void closeWindowEvent(WindowEvent event) {
@@ -280,6 +286,7 @@ public class ChessboardController {
                         updateSolution();
 
                         solveDomination.setDisable(false);
+                        solveBishopDomination.setDisable(FluentIterable.from(solverChessPieces.getItems()).transform(piece -> piece.getType()).contains(ChessPiece.Type.BISHOP));
                     });
                 } else {
                     Platform.runLater(() -> {
@@ -292,6 +299,94 @@ public class ChessboardController {
                         alert.showAndWait();
 
                         solveDomination.setDisable(false);
+                        solveBishopDomination.setDisable(FluentIterable.from(solverChessPieces.getItems()).transform(piece -> piece.getType()).contains(ChessPiece.Type.BISHOP));
+                    });
+                }
+
+                return null;
+            }
+        };
+
+        solverThread = new Thread(solverTask);
+        solverThread.start();
+    }
+
+    private void startBishopSolverTask(int chessboardWidth, int chessboardHeight) {
+        solverTask = new Task<Void>() {
+            @Override
+            public Void call() {
+                BigInteger numberOfSolutions;
+                chessboard = null;
+
+                Stopwatch sw = Stopwatch.createStarted();
+
+                do {
+                    Platform.runLater(() -> {
+                        dominationProgressIndicator.setVisible(true);
+                        dominationProgressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+                    });
+
+                    DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
+                    ThreadedSolutionIterable solutionIterable = solver.getThreadedSolutions();
+                    ThreadedSolutionIterator solutionIterator = solutionIterable.iterator();
+
+                    setupProgressBar(solver.getNumberOfChessboardCombinations(), solutionIterable);
+                    
+                    numberOfSolutions = new BigInteger("0");
+
+                    if (solutionIterator.hasNext()) {
+                        chessboard = solutionIterator.next();
+                        numberOfSolutions = numberOfSolutions.add(BigInteger.ONE);
+    
+                        while (solutionIterator.hasNext()) {
+                            solutionIterator.next();
+                            numberOfSolutions = numberOfSolutions.add(BigInteger.ONE);
+                        }
+                    }
+
+                    Platform.runLater(() -> {
+                        progressBarUpdater.cancel();
+                    });
+
+                    if (chessboard == null && !isCancelled()) {
+                        solverChessPieces.getItems().add(new Bishop(Color.BLACK));
+                    }
+                } while (chessboard == null && !isCancelled());
+
+                sw.stop();
+
+                if (isCancelled()) {
+                    return null;
+                }
+
+                if (numberOfSolutions.compareTo(BigInteger.ZERO) != 0) {
+                    final BigInteger finalNumberOfSolutions = numberOfSolutions;
+
+                    Platform.runLater(() -> {
+                        dominationProgressIndicator.setVisible(false);
+
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setHeaderText("Solution result");
+                        alert.setContentText("Found " + finalNumberOfSolutions.toString() + " solutions\nTime elapsed: " + formatElapsedTime(sw));
+                        alert.showAndWait();
+
+                        updateSolution();
+
+                        solveDomination.setDisable(false);
+                        solveBishopDomination.setDisable(FluentIterable.from(solverChessPieces.getItems()).transform(piece -> piece.getType()).contains(ChessPiece.Type.BISHOP));
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        progressBarUpdater.cancel();
+                        dominationProgressIndicator.setVisible(false);
+
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setHeaderText("Solution result");
+                        alert.setContentText("Found no solutions\nTime elapsed: " + formatElapsedTime(sw));
+                        alert.showAndWait();
+
+                        solveDomination.setDisable(false);
+                        solveBishopDomination.setDisable(FluentIterable.from(solverChessPieces.getItems()).transform(piece -> piece.getType()).contains(ChessPiece.Type.BISHOP));
                     });
                 }
 
