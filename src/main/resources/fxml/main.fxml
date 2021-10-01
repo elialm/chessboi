@@ -83,11 +83,6 @@
             <AnchorPane id="controls-chessboard-solve">
                 <Button fx:id="solveBishopDomination" text="Solve bishop domination" onAction="#solveBishopDominationProblem" disable="true" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
-            <AnchorPane id="controls-chessboard-solution-arrows">
-                <Button fx:id="previousSolution" text="Previous" disable="true" onAction="#displayPreviousSolution" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="150.0"/>
-                <Button fx:id="nextSolution" text="Next" disable="true" onAction="#displayNextSolution" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="0.0"/>
-            </AnchorPane>
-            <Label fx:id="solutionIndex" text="No results"/>
             <AnchorPane id="controls-chessboard-progress-bar">
                 <ProgressBar fx:id="dominationProgressIndicator" visible="false" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
             </AnchorPane>
