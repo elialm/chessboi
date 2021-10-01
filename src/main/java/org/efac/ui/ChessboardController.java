@@ -221,6 +221,11 @@ public class ChessboardController {
     }
 
     @FXML
+    public void solveBishopDominationProblem(ActionEvent event) {
+        
+    }
+
+    @FXML
     public void displayPreviousSolution(ActionEvent event) {
         currentSolution--;
         updateSolution();
