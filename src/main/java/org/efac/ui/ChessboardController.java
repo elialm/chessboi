@@ -50,6 +50,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.concurrent.ScheduledService;
 
 import java.util.regex.Pattern;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.math.BigInteger;
 
@@ -62,10 +63,12 @@ import org.efac.chess.piece.Bishop;
 import org.efac.chess.piece.Queen;
 import org.efac.chess.solver.DominationSolver;
 import org.efac.chess.iter.ThreadedSolutionIterable;
+import org.efac.chess.iter.ThreadedSolutionIterator;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.base.Stopwatch;
 
 public class ChessboardController {
     
@@ -99,6 +102,9 @@ public class ChessboardController {
 
     @FXML
     private Button solveDomination;
+
+    @FXML
+    private Button solveBishopDomination;
 
     @FXML
     private Button previousSolution;
@@ -188,28 +194,25 @@ public class ChessboardController {
 
     @FXML
     public void addChessPiece(ActionEvent event) {
-        solverChessPieces.getItems().add(getSelectedChessPiece());
+        ChessPiece selectedPiece = getSelectedChessPiece();
+
+        solverChessPieces.getItems().add(selectedPiece);
+
         solveDomination.setDisable(false);
+        solveBishopDomination.setDisable(FluentIterable.from(solverChessPieces.getItems()).transform(piece -> piece.getType()).contains(ChessPiece.Type.BISHOP));
     }
 
     @FXML
     public void clearChessPieces(ActionEvent event) {
         solverChessPieces.getItems().clear();
         solveDomination.setDisable(true);
+        solveBishopDomination.setDisable(true);
     }
 
     @FXML
     public void solveDominationProblem(ActionEvent event) {
         Optional<Point> boardDimensions = getPreferredBoardSize();
         if (!boardDimensions.isPresent()) {
-            return;
-        }
-
-        if (solverChessPieces.getItems().isEmpty()) {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setHeaderText("Chess pieces missing");
-            alert.setContentText("No chess pieces have been added to the board, please add at least one");
-            alert.showAndWait();
             return;
         }
 
@@ -222,7 +225,16 @@ public class ChessboardController {
 
     @FXML
     public void solveBishopDominationProblem(ActionEvent event) {
-        
+        Optional<Point> boardDimensions = getPreferredBoardSize();
+        if (!boardDimensions.isPresent()) {
+            return;
+        }
+
+        solveDomination.setDisable(true);
+        nextSolution.setDisable(true);
+        previousSolution.setDisable(true);
+
+        startSolverTask(boardDimensions.get().getXComponent(), boardDimensions.get().getYComponent());
     }
 
     @FXML
@@ -267,24 +279,46 @@ public class ChessboardController {
         solverTask = new Task<Void>() {
             @Override
             public Void call() {
+                Platform.runLater(() -> {
+                    dominationProgressIndicator.setVisible(true);
+                    dominationProgressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+                });
+
+                Stopwatch sw = Stopwatch.createStarted();
+
                 DominationSolver solver = new DominationSolver(chessboardWidth, chessboardHeight, solverChessPieces.getItems());
                 ThreadedSolutionIterable solutionIterable = solver.getThreadedSolutions();
+                ThreadedSolutionIterator solutionIterator = solutionIterable.iterator();
 
                 setupProgressBar(solver.getNumberOfChessboardCombinations(), solutionIterable);
-                dominationSolutions = FluentIterable.from(solutionIterable).toList();
+                
+                BigInteger numberOfSolutions = new BigInteger("0");
+                if (solutionIterator.hasNext()) {
+                    dominationSolutions = ImmutableList.of(solutionIterator.next());
+                    numberOfSolutions = numberOfSolutions.add(BigInteger.ONE);
+
+                    while (solutionIterator.hasNext()) {
+                        solutionIterator.next();
+                        numberOfSolutions = numberOfSolutions.add(BigInteger.ONE);
+                    }
+                }
+
+                sw.stop();
 
                 if (isCancelled()) {
                     return null;
                 }
 
-                if (!dominationSolutions.isEmpty()) {
+                if (numberOfSolutions.compareTo(BigInteger.ZERO) != 0) {
+                    final BigInteger finalNumberOfSolutions = numberOfSolutions;
+
                     Platform.runLater(() -> {
                         progressBarUpdater.cancel();
                         dominationProgressIndicator.setVisible(false);
 
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setHeaderText("Solution result");
-                        alert.setContentText("Found a solution");
+                        alert.setContentText("Found " + finalNumberOfSolutions.toString() + " solutions\nTime elapsed: " + formatElapsedTime(sw));
                         alert.showAndWait();
 
                         currentSolution = 0;
@@ -300,7 +334,7 @@ public class ChessboardController {
 
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setHeaderText("Solution result");
-                        alert.setContentText("Found no solutions");
+                        alert.setContentText("Found no solutions\nTime elapsed: " + formatElapsedTime(sw));
                         alert.showAndWait();
 
                         solveDomination.setDisable(false);
@@ -315,13 +349,27 @@ public class ChessboardController {
         solverThread.start();
     }
 
+    private String formatElapsedTime(Stopwatch sw) {
+        long minutePart = sw.elapsed(TimeUnit.MINUTES);
+        long secondPart = sw.elapsed(TimeUnit.SECONDS) % 60;
+        long milliPart = sw.elapsed(TimeUnit.MILLISECONDS) % 1000;
+
+        return padNumber(minutePart, 2) + ":" + padNumber(secondPart, 2) + "." + padNumber(milliPart, 3);
+    }
+
+    private String padNumber(Long value, int minWidth) {
+        String valueString = value.toString();
+        String padString = "0".repeat(Math.max(minWidth - valueString.length(), 0));
+
+        return padString + valueString;
+    }
+
     private void setupProgressBar(BigInteger numberOfChessboardCombinations, ThreadedSolutionIterable solutionIterable) {
         progressBarUpdater = createProgressUpdaterService(numberOfChessboardCombinations, solutionIterable);
         progressBarUpdater.setPeriod(Duration.seconds(1));
         progressBarUpdater.start();
 
         Platform.runLater(() -> {
-            dominationProgressIndicator.setVisible(true);
             dominationProgressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         });
     }
