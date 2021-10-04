@@ -25,51 +25,49 @@ package org.efac.chess.iter;
 
  */
 
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Map;
 import java.util.List;
-
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 
 import org.efac.chess.ChessPiece;
 import org.efac.chess.Chessboard;
-import org.efac.chess.Point;
 import org.efac.chess.BoardLocation;
-import org.efac.func.PyIterators;
 import org.efac.func.ProgressUpdate;
 
 public class DominationSolutionIterator implements Iterator<Chessboard> {
     private final int boardWidth;
     private final int boardHeight;
-    private final List<ImmutableList<ChessPiece>> pieceCombinations;
-    private final List<FluentIterable<Integer>> boardLocationCombinationIterables;
+    private final List<List<ChessPiece>> pieceCombinations;
+    private final Iterator<List<Integer>> boardLocationCombinationIterator;
+    private List<List<Integer>> boardLocationCombinations;
     private ProgressUpdate progressUpdateCallback;
     private Chessboard nextSolution;
     private boolean exhaustedIterator;
     private int currentBoardCombination;
-    private int previousLocationCombinationIndex;
-    private ImmutableList<Point> cachedLocationCombination;
     private volatile boolean cancelIteration;
 
     public void setProgressUpdateCallback(ProgressUpdate callback) { progressUpdateCallback = callback; }
 
-    public DominationSolutionIterator(int boardWidth, int boardHeight, List<ImmutableList<ChessPiece>> pieceCombinations, List<FluentIterable<Integer>> boardLocationCombinations) {
+    public DominationSolutionIterator(int boardWidth, int boardHeight, List<List<ChessPiece>> pieceCombinations, Iterator<List<Integer>> boardLocationCombinations) {
         this(boardWidth, boardHeight, pieceCombinations, boardLocationCombinations, null);
     }
 
-    public DominationSolutionIterator(int boardWidth, int boardHeight, List<ImmutableList<ChessPiece>> pieceCombinations, List<FluentIterable<Integer>> boardLocationCombinations, ProgressUpdate progressUpdate) {
+    public DominationSolutionIterator(int boardWidth, int boardHeight, List<List<ChessPiece>> pieceCombinations, Iterator<List<Integer>> boardLocationCombinations, ProgressUpdate progressUpdate) {
+        if (!boardLocationCombinations.hasNext()) {
+            throw new InvalidParameterException("Given board location combinations iterator has already been exhausted");
+        }
+        
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
         this.pieceCombinations = pieceCombinations;
-        this.boardLocationCombinationIterables = boardLocationCombinations;
+        this.boardLocationCombinationIterator = boardLocationCombinations;
+        boardLocationCombinations = null;
         this.progressUpdateCallback = progressUpdate;
         nextSolution = null;
         exhaustedIterator = false;
         currentBoardCombination = 0;
-        previousLocationCombinationIndex = -1;
-        cachedLocationCombination = null;
         cancelIteration = false;
     }
     
@@ -83,21 +81,21 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
             return true;
         }
 
-        return (nextSolution = findNext()) == null ? false : true;
+        if (boardLocationCombinations == null) {
+            boardLocationCombinations = collectLocationCombinations(boardLocationCombinationIterator);
+        }
+
+        return (nextSolution = findNext()) != null;
     }
       
     @Override
     public Chessboard next() {
-        if (exhaustedIterator) {
+        if (!hasNext()) {
             throw new NoSuchElementException("Iterator has been exhausted");
         }
         
-        Chessboard next = nextSolution != null ? nextSolution : findNext();
+        Chessboard next = nextSolution;
         nextSolution = null;
-        if (next == null) {
-            throw new NoSuchElementException("Iterator has been exhausted");
-        }
-
         return next;
     }
       
@@ -115,25 +113,20 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         Chessboard chessboardSolution = null;
         
         locationCombinationsLoop:
-        for (int currentLocationCombinationIndex = currentBoardCombination / pieceCombinations.size(); currentLocationCombinationIndex < boardLocationCombinationIterables.size() && !cancelIteration; currentLocationCombinationIndex++) {
-            ImmutableList<Point> currentLocationCombination = getBoardLocationCombination(currentLocationCombinationIndex);
+        for (int currentLocationCombinationIndex = currentBoardCombination / pieceCombinations.size(); currentLocationCombinationIndex < boardLocationCombinations.size() && !cancelIteration; currentLocationCombinationIndex++) {
+            List<Integer> currentLocationCombination = boardLocationCombinations.get(currentLocationCombinationIndex);
             
-            if (progressUpdateCallback != null) {
-                progressUpdateCallback.updateProgress(currentBoardCombination);
-            }
+            callProgressCallback();
 
             for (int pieceCombinationIndex = currentBoardCombination % pieceCombinations.size(); pieceCombinationIndex < pieceCombinations.size() && !cancelIteration; currentBoardCombination++, pieceCombinationIndex++) {
-                ImmutableList<ChessPiece> currentPieceCombination = pieceCombinations.get(pieceCombinationIndex);
-                Chessboard chessboard = createChessboard(PyIterators.zip(currentLocationCombination, currentPieceCombination));
+                List<ChessPiece> currentPieceCombination = pieceCombinations.get(pieceCombinationIndex);
+                Chessboard chessboard = createChessboard(currentLocationCombination, currentPieceCombination);
             
                 if (chessboard.isDominated()) {
                     chessboardSolution = chessboard;
                     currentBoardCombination++;
 
-                    if (progressUpdateCallback != null) {
-                        progressUpdateCallback.updateProgress(currentBoardCombination);
-                    }
-                    
+                    callProgressCallback();
                     break locationCombinationsLoop;
                 }
             }
@@ -146,25 +139,33 @@ public class DominationSolutionIterator implements Iterator<Chessboard> {
         return chessboardSolution;
     }
 
-    private Chessboard createChessboard(Map<Point, ChessPiece> boardState) {
+    private Chessboard createChessboard(List<Integer> boardLocationCombination, List<ChessPiece> pieceCombination) {
+        if (pieceCombination.size() != boardLocationCombination.size()) {
+            throw new InvalidParameterException("Size mismatch between number of piece and board location combinations");
+        }
+
         Chessboard chessboard = new Chessboard(boardWidth, boardHeight);
     
-        for (Map.Entry<Point, ChessPiece> entry : boardState.entrySet()) {
-            BoardLocation location = chessboard.getLocation(entry.getKey());
-            location.setPiece(entry.getValue());
+        for (int i = 0; i < pieceCombination.size(); i++) {
+            BoardLocation location = chessboard.getLocation(boardLocationCombination.get(i));
+            location.setPiece(pieceCombination.get(i));
         }
 
         return chessboard;
     }
 
-    private ImmutableList<Point> getBoardLocationCombination(int index) {
-        if (index == previousLocationCombinationIndex) {
-            return cachedLocationCombination;
+    private void callProgressCallback() {
+        if (progressUpdateCallback != null) {
+            progressUpdateCallback.updateProgress(currentBoardCombination);
+        }
+    }
+
+    private List<List<Integer>> collectLocationCombinations(Iterator<List<Integer>> boardLocationCombinations) {
+        ArrayList<List<Integer>> collectedLocationCombinations = new ArrayList<>();
+        while (boardLocationCombinations.hasNext()) {
+            collectedLocationCombinations.add(boardLocationCombinations.next());
         }
 
-        previousLocationCombinationIndex = index;
-        return cachedLocationCombination = boardLocationCombinationIterables.get(index)
-                                                                            .transform(i -> Point.fromIndex(i, boardWidth, boardHeight))
-                                                                            .toList();
+        return collectedLocationCombinations;
     }
 }

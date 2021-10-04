@@ -30,12 +30,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.ArrayList;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
 import org.efac.func.PyIterators;
 
-public class BoardLocationCombinationIterator implements Iterator<FluentIterable<Integer>> {
+public class BoardLocationCombinationIterator implements Iterator<List<Integer>> {
     final private int cellCount;
     final private int numberOfPieces;
     private ArrayList<Integer> next;
@@ -71,12 +70,12 @@ public class BoardLocationCombinationIterator implements Iterator<FluentIterable
     }
 
     @Override
-    public FluentIterable<Integer> next() {
+    public List<Integer> next() {
         if (!hasNext()) {
             throw new NoSuchElementException("Iterator is exhausted");
         }
 
-        FluentIterable<Integer> nextCopy = FluentIterable.from(next);
+        List<Integer> nextCopy = Lists.newArrayList(next);
         next = null;
         return nextCopy;
     }
