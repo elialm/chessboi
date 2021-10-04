@@ -50,7 +50,7 @@ public class BoardLocationCombinationComputer {
                 .longValue();
 
         upperSliceLength = cellCount + 1 - numberOfPieces;
-        upperSlices = computeSlices(upperSliceLength, numberOfPieces + 1);
+        upperSlices = computeSlices(upperSliceLength, numberOfPieces);
         baseBounds = computeBounds(upperSlices.get(0), 0);
         upperSlices.remove(0);
     }
@@ -75,11 +75,11 @@ public class BoardLocationCombinationComputer {
                 currentBounds = computeBounds(upperSlices.get(depth - 1).subList(0, upperSliceLength - lastValueAdded + depth - 1), currentBounds.get(startingPoint - previousPoint - 1));
             }
 
-            for (int i = 1; i < currentBounds.size(); i++) {
+            for (int i = 0; i < currentBounds.size(); i++) {
                 if (currentBounds.get(i) > requestedIndex) {
                     requestedCombination.add(i - 1 + startingPoint);
                     previousPoint = startingPoint;
-                    startingPoint++;
+                    startingPoint += i;
                     break;
                 }
             }
@@ -93,8 +93,8 @@ public class BoardLocationCombinationComputer {
         ArrayList<Integer> bounds = new ArrayList<>(slice.size() + 1);
         bounds.add(base);
 
-        for (int i = 0; i < slice.size(); i++) {
-            bounds.add(bounds.get(i) + slice.get(i));
+        for (int i = slice.size() - 1, j = 0; i >= 0; i--, j++) {
+            bounds.add(bounds.get(j) + slice.get(i));
         }
 
         return bounds;
@@ -128,7 +128,7 @@ public class BoardLocationCombinationComputer {
                 currentLevel.add(currentLevel.get(j - 1) + lastLevel.get(j));
             }
 
-            slices.add(currentLevel);
+            slices.add(0, currentLevel);
         }
 
         return slices;
