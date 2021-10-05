@@ -33,36 +33,51 @@ import java.util.ArrayList;
 import com.google.common.collect.Lists;
 
 import org.efac.func.PyIterators;
+import org.efac.common.Utility;
 
 public class BoardLocationCombinationIterator implements Iterator<List<Integer>> {
     final private int cellCount;
     final private int numberOfPieces;
+    final private int numberOfCombinations;
     private ArrayList<Integer> next;
     private ArrayList<Integer> current;
     private ArrayList<Integer> last;
+    private int combinationsGenerated;
+    private int limit;
 
     public BoardLocationCombinationIterator(int boardWidth, int boardHeight, int numberOfPieces) {
-        cellCount = boardWidth * boardHeight;
-        this.numberOfPieces = numberOfPieces;
-
-        last = Lists.newArrayList(PyIterators.range(cellCount - numberOfPieces, cellCount));
-        current = Lists.newArrayList(PyIterators.range(0, numberOfPieces));
-        next = null;
+        this(boardWidth, boardHeight, Lists.newArrayList(PyIterators.range(0, numberOfPieces)), 0);
     }
 
-    public BoardLocationCombinationIterator(int boardWidth, int boardHeight, List<Integer> initial) {
+    public BoardLocationCombinationIterator(int boardWidth, int boardHeight, List<Integer> initial, int initialIndex) {
         cellCount = boardWidth * boardHeight;
         this.numberOfPieces = initial.size();
+        numberOfCombinations = calculateNumberOfCombinations();
 
-        last = Lists.newArrayList(PyIterators.range(cellCount - numberOfPieces, cellCount));
-        current = Lists.newArrayList(initial);
         next = null;
+        current = Lists.newArrayList(initial);
+        last = Lists.newArrayList(PyIterators.range(cellCount - numberOfPieces, cellCount));
+
+        combinationsGenerated = initialIndex;
+        limit = Integer.MAX_VALUE;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public int getNumberOfCombinations() {
+        return Math.min(numberOfCombinations, limit);
     }
 
     @Override
     public boolean hasNext() {
         if (next != null) {
             return true;
+        }
+
+        if (combinationsGenerated >= limit) {
+            return false;
         }
 
         next = findNext();
@@ -107,6 +122,13 @@ public class BoardLocationCombinationIterator implements Iterator<List<Integer>>
             }
         }
 
-        return (ArrayList<Integer>)current.clone();
+        combinationsGenerated++;
+        return (ArrayList<Integer>) current.clone();
+    }
+
+    private int calculateNumberOfCombinations() {
+        return Utility.factorial(cellCount)
+                .divide(Utility.factorial(numberOfPieces).multiply(Utility.factorial(cellCount - numberOfPieces)))
+                .intValue();
     }
 }
